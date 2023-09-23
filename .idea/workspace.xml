@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="334387e5-5b08-4311-afc3-522fe5629100" name="更改" comment="" />
+    <list default="true" id="334387e5-5b08-4311-afc3-522fe5629100" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -50,6 +52,7 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
@@ -65,6 +68,7 @@
       <workItem from="1694515411037" duration="382000" />
       <workItem from="1694535821192" duration="269000" />
       <workItem from="1695024274624" duration="17000" />
+      <workItem from="1695473710064" duration="854000" />
     </task>
     <servers />
   </component>
