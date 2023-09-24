@@ -32,7 +32,7 @@ Amazon
 * To **train** the  baseline model :
 
 ```shell
-python run.py --model=
+python run.py --model=BLAT --embedding=random --word True
 ```
 
 ## Results
