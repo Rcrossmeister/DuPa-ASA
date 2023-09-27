@@ -37,14 +37,17 @@ python run.py --model=BLAT --embedding=random --word True
 
 ## Results
 
-| Model   | IMDB | Yelp-2 | Yelp-5 | Amazon-5 |
-| ------- | ---- | ------ | ------ | -------- |
-| TextCNN |      |        |        |          |
-|         |      |        |        |          |
-|         |      |        |        |          |
-|         |      |        |        |          |
-|         |      |        |        |          |
-|         |      |        |        |          |
+| Model       | IMDB   | Yelp-2 | Yelp-5 | Amazon |
+| ----------- | ------ | ------ | ------ | ------ |
+| BiLSTM      | 0.5098 | 0.7081 | 0.6316 | 0.5061 |
+| TextCNN     | 0.8702 | 0.9681 |        | 0.8947 |
+| TextCNN_Att | 0.8644 | 0.9639 | 0.7137 |        |
+| TextRCNN    | 0.7480 | 0.9267 | 0.7186 | 0.8377 |
+| Transformer | 0.7746 | 0.9344 | 0.7110 | 0.8093 |
+| BLAT        | 0.8630 | 0.9731 | 0.7861 | 0.9119 |
+| DPCNN       |        |        |        |        |
+| Fasttext    |        |        |        |        |
+| Fastformer  |        |        |        |        |
 
 ## Citation
 

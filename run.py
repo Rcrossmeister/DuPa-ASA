@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 if __name__ == '__main__':
 
-    dataset = 'IMDB-inter-pure'  # 数据集
+    dataset = '/home/sy/code/DUPA-ASA/data/Amazon'  # 数据集
 
     # 搜狗新闻:embedding_SougouNews.npz, 腾讯:embedding_Tencent.npz, 随机初始化:random
     embedding = 'embeddings.npz'
@@ -36,9 +36,9 @@ if __name__ == '__main__':
         config = x.Config(dataset, raw_embedding, extract_embedding)
     else:
         config = x.Config(dataset, embedding)
-    np.random.seed(1234)
-    torch.manual_seed(1234)
-    torch.cuda.manual_seed_all(1234)
+    np.random.seed(88)
+    torch.manual_seed(88)
+    torch.cuda.manual_seed_all(88)
     torch.backends.cudnn.deterministic = True  # 保证每次结果一样
 
     start_time = time.time()
