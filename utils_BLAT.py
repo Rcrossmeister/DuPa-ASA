@@ -7,55 +7,27 @@ from tqdm import tqdm
 import time
 from datetime import timedelta
 from collections import Counter
+import torch
+from transformers import BertTokenizer, BertModel
+
 
 MAX_VOCAB_SIZE = 10000  # 词表长度限制 52对于10000适用
 UNK, PAD = '<UNK>', '<PAD>'  # 未知字，padding符号
 
-def build_vocab(file_path, tokenizer, max_size, min_freq):
+class Config:
+    def __init__(self):
+        self.train_path = "train.txt"  # 修改为你的训练数据路径
+        self.dev_path = "dev.txt"  # 修改为你的验证数据路径
+        self.test_path = "test.txt"  # 修改为你的测试数据路径
+        self.pad_size = 360  # 根据需求设置句子的最大长度
 
-    raw_vocab_counter, extract_vocab_counter = Counter(), Counter()
-    with open(file_path, 'r', encoding='UTF-8') as f:
-        for line in tqdm(f):
-            lin = line.strip()
-            if not lin:
-                continue
-            raw_content, extract_content, label = lin.split('\t')
-            raw_vocab_counter.update(tokenizer(raw_content))
-            extract_vocab_counter.update(tokenizer(extract_content))
-
-        raw_vocab_list = [word for word, freq in raw_vocab_counter.most_common(max_size) if freq >= min_freq]
-        raw_vocab_dic = {word: idx for idx, word in enumerate(raw_vocab_list)}
-        raw_vocab_dic.update({UNK: len(raw_vocab_dic), PAD: len(raw_vocab_dic) + 1})
-
-        extract_vocab_list = [word for word, freq in extract_vocab_counter.most_common(max_size) if freq >= min_freq]
-        extract_vocab_dic = {word: idx for idx, word in enumerate(extract_vocab_list)}
-        extract_vocab_dic.update({UNK: len(extract_vocab_dic), PAD: len(extract_vocab_dic) + 1})
-        return raw_vocab_dic, extract_vocab_dic
-
-def pad_tokens(token, pad_size):
-    if len(token) < pad_size:
-        token.extend([PAD] * (pad_size - len(token)))
-    else:
-        token = token[:pad_size]
-    seq_len = min(len(token), pad_size)
-    return token, seq_len
-
-
+config=Config()
 
 def build_dataset(config, use_word):
     if use_word:
-        tokenizer = lambda x: x.split(' ')  # 以空格隔开，word-level
+        tokenizer_bert = BertTokenizer.from_pretrained("bert-base-uncased")  # 使用BERT的Tokenizer
     else:
         tokenizer = lambda x: [y for y in x]  # char-level
-    if os.path.exists(config.raw_vocab_path) and os.path.exists(config.extract_vocab_path):
-        raw_vocab = pkl.load(open(config.raw_vocab_path, 'rb'))
-        extract_vocab = pkl.load(open(config.extract_vocab_path, 'rb'))
-    else:
-        raw_vocab, extract_vocab = build_vocab(config.train_path, tokenizer=tokenizer, max_size=MAX_VOCAB_SIZE, min_freq=2)
-        pkl.dump(raw_vocab, open(config.raw_vocab_path, 'wb'))
-        pkl.dump(extract_vocab, open(config.extract_vocab_path, 'wb'))
-    print(f"Raw_Vocab size: {len(raw_vocab)}")
-    print(f"Extract_Vocab size: {len(extract_vocab)}")
 
     def load_dataset(path, pad_size=360):
         contents = []
@@ -69,25 +41,27 @@ def build_dataset(config, use_word):
                 except:
                     lin  = lin.replace('\t', ' ').rstrip()[:-1] + '\t' + lin[-1]
                     raw_content, extract_content, label = lin.split('\t')
+                bert_vocab = tokenizer_bert.get_vocab()
                 raw_words_line, extract_words_line = [], []
-                raw_token = tokenizer(raw_content)
-                extract_token = tokenizer(extract_content)
-                if pad_size:
-                    raw_token, seq_len = pad_tokens(raw_token, pad_size)
-                    extract_token, seq_len = pad_tokens(extract_token, pad_size)
+                raw_token = tokenizer_bert(raw_content, truncation=True, max_length=pad_size)
+                extract_token = tokenizer_bert(extract_content, padding='max_length', truncation=True)
                 # word to id
                 for word in raw_token:
-                    raw_words_line.append(raw_vocab.get(word, raw_vocab.get(UNK)))
+                    raw_words_line = tokenizer.convert_tokens_to_ids(raw_token)
                 for word in extract_token:
-                    extract_words_line.append(extract_vocab.get(word, extract_vocab.get(UNK)))
-                contents.append((raw_words_line, extract_words_line, int(label), seq_len))
+                    extract_words_line = tokenizer.convert_tokens_to_ids(extract_token)
+                contents.append((raw_words_line, extract_words_line, int(label), pad_size))  # 传递pad_size
         return contents
 
     train = load_dataset(config.train_path, config.pad_size)
     dev = load_dataset(config.dev_path, config.pad_size)
     test = load_dataset(config.test_path, config.pad_size)
 
-    return raw_vocab, extract_vocab, train, dev, test
+    return train, dev, test
+
+# 调用build_dataset函数
+train, dev, test = build_dataset(config, use_word=True)
+
 
 
 class DatasetIterater(object):
@@ -160,8 +134,9 @@ if __name__ == "__main__":
         word_to_id = pkl.load(open(vocab_dir, 'rb'))
     else:
         # tokenizer = lambda x: x.split(' ')  # 以词为单位构建词表(数据集中词之间以空格隔开)
-        tokenizer = lambda x: [y for y in x]  # 以字为单位构建词表
-        word_to_id = build_vocab(train_dir, tokenizer=tokenizer, max_size=MAX_VOCAB_SIZE, min_freq=1)
+        # tokenizer = lambda x: [y for y in x]  # 以字为单位构建词表
+        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        word_to_id = tokenizer.encode(train_dir, add_special_tokens=True)
         pkl.dump(word_to_id, open(vocab_dir, 'wb'))
 
     embeddings = np.random.rand(len(word_to_id), emb_dim)
