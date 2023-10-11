@@ -49,6 +49,8 @@ python run.py --model=BLAT --embedding=random --word True
 | Fastformer  |            |            |            |            |
 | **BLAT**    | **0.8630** | **0.9731** | **0.7861** | **0.9119** |
 
+acc(BLAT with bert on IMDB)=0.8952
+
 ## Citation
 
 Please cite our paper if you use it in your work:
