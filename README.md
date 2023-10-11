@@ -37,19 +37,33 @@ python run.py --model=BLAT --embedding=random --word True
 
 ## Results
 
+Without bert:
+
 | Model       | IMDB       | Yelp-2     | Yelp-5     | Amazon     |
 | ----------- | ---------- | ---------- | ---------- | ---------- |
 | BiLSTM      | 0.5098     | 0.7081     | 0.6316     | 0.5061     |
-| TextCNN     | 0.8702     | 0.9681     |            | 0.8947     |
-| TextCNN_Att | 0.8644     | 0.9639     | 0.7137     |            |
+| TextCNN     | 0.8702     | 0.9681     | 0.7735     | 0.8947     |
+| TextCNN_Att | 0.8644     | 0.9639     | 0.7137     | 0.8756     |
 | TextRCNN    | 0.7480     | 0.9267     | 0.7186     | 0.8377     |
 | Transformer | 0.7746     | 0.9344     | 0.7110     | 0.8093     |
-| DPCNN       |            |            |            |            |
-| Fasttext    |            |            |            |            |
+| DPCNN       |            |            |            | 0.9058     |
+| Fasttext    |            |            |            | 0.8513     |
 | Fastformer  |            |            |            |            |
 | **BLAT**    | **0.8630** | **0.9731** | **0.7861** | **0.9119** |
 
-acc(BLAT with bert on IMDB)=0.8952
+BLAT with bert, others use bert realated but no bert embedding:
+
+| Model          | IMDB       | Yelp-2 | Yelp-5 | Amazon |
+| -------------- | ---------- | ------ | ------ | ------ |
+| BiLSTM         |            |        |        |        |
+| TextCNN        |            |        |        |        |
+| TextCNN_Att    |            |        |        |        |
+| TextRCNN       |            |        |        |        |
+| Transformer    |            |        |        |        |
+| DPCNN          |            |        |        |        |
+| Fasttext       |            |        |        |        |
+| Fastformer     |            |        |        |        |
+| **BLAT(bert)** | **0.8952** | ****   | ****   | ****   |
 
 ## Citation
 
