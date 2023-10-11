@@ -21,7 +21,7 @@ class Config(object):
         self.embedding_pretrained = torch.tensor(
             np.load(dataset + '/data/' + embedding)["embeddings"].astype('float32'))\
             if embedding != 'random' else None                                       # 预训练词向量
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')   # 设备
+        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')   # 设备
 
         self.dropout = 0.5                                              # 随机失活
         self.require_improvement = 1000                                 # 若超过1000batch效果还没提升，则提前结束训练
@@ -33,7 +33,7 @@ class Config(object):
         self.learning_rate = 1e-3                                       # 学习率
         self.embed = self.embedding_pretrained.size(1)\
             if self.embedding_pretrained is not None else 300           # 字向量维度
-        self.num_filters = 250                                          # 卷积核数量(channels数)
+        self.num_filters = 250                                        # 卷积核数量(channels数)
 
 
 '''Deep Pyramid Convolutional Neural Networks for Text Categorization'''
@@ -66,7 +66,7 @@ class Model(nn.Module):
         x = self.padding1(x)  # [batch_size, 250, seq_len, 1]
         x = self.relu(x)
         x = self.conv(x)  # [batch_size, 250, seq_len-3+1, 1]
-        while x.size()[2] > 2:
+        while x.size()[2] >= 2:
             x = self._block(x)
         x = x.squeeze()  # [batch_size, num_filters(250)]
         x = self.fc(x)
@@ -83,7 +83,6 @@ class Model(nn.Module):
         x = self.padding1(x)
         x = F.relu(x)
         x = self.conv(x)
-
         # Short Cut
         x = x + px
         return x

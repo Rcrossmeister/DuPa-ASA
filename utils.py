@@ -26,9 +26,10 @@ def build_vocab(file_path, tokenizer, max_size, min_freq):
         vocab_dic = {word_count[0]: idx for idx, word_count in enumerate(vocab_list)}
         vocab_dic.update({UNK: len(vocab_dic), PAD: len(vocab_dic) + 1})
     return vocab_dic
+#vocab_dic先是包含词和出现频率的字典，然后又被赋位包含词和idx的字典，最后添加了UNK和PAD
+# vocab_list是按照频率由大到小排序并去前max_size个词
 
-
-def build_dataset(config, use_word):
+def build_dataset(config, use_word):  #获得vocab和各个集中的词信息
     if use_word:
         tokenizer = lambda x: x.split(' ')  # 以空格隔开，word-level
     else:
@@ -39,6 +40,7 @@ def build_dataset(config, use_word):
         vocab = build_vocab(config.train_path, tokenizer=tokenizer, max_size=MAX_VOCAB_SIZE, min_freq=2)
         pkl.dump(vocab, open(config.vocab_path, 'wb'))
     print(f"Vocab size: {len(vocab)}")
+#如果vocab.pkl不存在，则把训练集放入前面定义的build_vocab得到包含词和idx的字典vocab，并且人为设定大小为10000+2词，并且创建好这个vocab文件
 
     def load_dataset(path, pad_size=32):
         contents = []
@@ -51,11 +53,11 @@ def build_dataset(config, use_word):
                     content, label = lin.split('\t')
                 except:
                     lin = lin.replace('\t', ' ').rstrip()[:-1] + '\t' + lin[-1]
-                    content, label = lin.split('\t')
+                    content, label = lin.split('\t')  #分割文本与label
                 words_line = []
-                token = tokenizer(content)
+                token = tokenizer(content)  #把一行文本分割成一个一个的词，这里的token实际上是tokens，为很多token
                 seq_len = len(token)
-                if pad_size:
+                if pad_size:  ##保证每行文本都为同一长度
                     if len(token) < pad_size:
                         token.extend([PAD] * (pad_size - len(token)))
                     else:
@@ -65,7 +67,7 @@ def build_dataset(config, use_word):
                 for word in token:
                     words_line.append(vocab.get(word, vocab.get(UNK)))
                 contents.append((words_line, int(label), seq_len))
-        return contents  # [([...], 0), ([...], 1), ...]
+        return contents  # [([...], 0), ([...], 1), ...]每个元素是一个元组，包括文本内容的索引序列、标签和序列长度。
     train = load_dataset(config.train_path, config.pad_size)
     dev = load_dataset(config.dev_path, config.pad_size)
     test = load_dataset(config.test_path, config.pad_size)
@@ -74,9 +76,9 @@ def build_dataset(config, use_word):
 
 class DatasetIterater(object):
     def __init__(self, batches, batch_size, device):
-        self.batch_size = batch_size
-        self.batches = batches
-        self.n_batches = len(batches) // batch_size
+        self.batch_size = batch_size  #mini-batch的大小
+        self.batches = batches  #是作为batch的数据们
+        self.n_batches = len(batches) // batch_size  #有多少个mini-batch
         self.residue = False  # 记录batch数量是否为整数
         if len(batches) % self.n_batches != 0:
             self.residue = True

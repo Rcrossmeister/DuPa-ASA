@@ -6,7 +6,7 @@ from train_eval import train, init_network
 from importlib import import_module
 import argparse
 
-parser = argparse.ArgumentParser(description='Chinese Text Classification')
+parser = argparse.ArgumentParser(description='Project_DUPA')
 parser.add_argument('--model', type=str, required=True, help='choose a model: TextCNN, TextRNN, FastText, TextRCNN, TextRNN_Att, DPCNN, Transformer')
 parser.add_argument('--embedding', default='pre_trained', type=str, help='random or pre_trained')
 parser.add_argument('--word', default=False, type=bool, help='True for word, False for char')
@@ -50,6 +50,7 @@ if __name__ == '__main__':
     train_iter = build_iterator(train_data, config)
     dev_iter = build_iterator(dev_data, config)
     test_iter = build_iterator(test_data, config)
+
     time_dif = get_time_dif(start_time)
     print("Time usage:", time_dif)
 
