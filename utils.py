@@ -6,41 +6,31 @@ import pickle as pkl
 from tqdm import tqdm
 import time
 from datetime import timedelta
-
+from collections import Counter
+import torch
+from transformers import BertTokenizer, BertModel
 
 MAX_VOCAB_SIZE = 10000  # 词表长度限制 52对于10000适用
 UNK, PAD = '<UNK>', '<PAD>'  # 未知字，padding符号
 
 
-def build_vocab(file_path, tokenizer, max_size, min_freq):
-    vocab_dic = {}
-    with open(file_path, 'r', encoding='UTF-8') as f:
-        for line in tqdm(f):
-            lin = line.strip()
-            if not lin:
-                continue
-            content = lin.split('\t')[0]
-            for word in tokenizer(content):
-                vocab_dic[word] = vocab_dic.get(word, 0) + 1  # 返回词频或者0
-        vocab_list = sorted([_ for _ in vocab_dic.items() if _[1] >= min_freq], key=lambda x: x[1], reverse=True)[:max_size]
-        vocab_dic = {word_count[0]: idx for idx, word_count in enumerate(vocab_list)}
-        vocab_dic.update({UNK: len(vocab_dic), PAD: len(vocab_dic) + 1})
-    return vocab_dic
+class Config:
+    def __init__(self):
+        self.train_path = "/Users/iris/Desktop/DuPa-ASA/data/IMDB/train.txt"  # 修改为你的训练数据路径
+        self.dev_path = "/Users/iris/Desktop/DuPa-ASA/data/IMDB/dev.txt"  # 修改为你的验证数据路径
+        self.test_path = "/Users/iris/Desktop/DuPa-ASA/data/IMDB/test.txt"  # 修改为你的测试数据路径
+        self.pad_size = 512  # 根据需求设置句子的最大长度
+        self.vocab_path = "/Users/iris/Downloads/bert-base-uncased/vocab.pkl"  # 词表路径
+        self.device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')  # 设备
 
 
 def build_dataset(config, use_word):
     if use_word:
-        tokenizer = lambda x: x.split(' ')  # 以空格隔开，word-level
+        tokenizer = BertTokenizer.from_pretrained("/Users/iris/Downloads/bert-base-uncased")  # 使用BERT的Tokenizer
     else:
         tokenizer = lambda x: [y for y in x]  # char-level
-    if os.path.exists(config.vocab_path):
-        vocab = pkl.load(open(config.vocab_path, 'rb'))
-    else:
-        vocab = build_vocab(config.train_path, tokenizer=tokenizer, max_size=MAX_VOCAB_SIZE, min_freq=2)
-        pkl.dump(vocab, open(config.vocab_path, 'wb'))
-    print(f"Vocab size: {len(vocab)}")
 
-    def load_dataset(path, pad_size=32):
+    def load_dataset(path, pad_size):
         contents = []
         with open(path, 'r', encoding='UTF-8') as f:
             for line in tqdm(f):
@@ -53,23 +43,22 @@ def build_dataset(config, use_word):
                     lin = lin.replace('\t', ' ').rstrip()[:-1] + '\t' + lin[-1]
                     content, label = lin.split('\t')
                 words_line = []
-                token = tokenizer(content)
+                token = tokenizer.encode(content, add_special_tokens=True,truncation=True,max_length=360,padding=True)  # 使用BERT的tokenizer对文本进行编码
                 seq_len = len(token)
+
                 if pad_size:
                     if len(token) < pad_size:
-                        token.extend([PAD] * (pad_size - len(token)))
+                        token.extend([tokenizer.pad_token_id] * (pad_size - len(token)))
                     else:
                         token = token[:pad_size]
                         seq_len = pad_size
-                # word to id
-                for word in token:
-                    words_line.append(vocab.get(word, vocab.get(UNK)))
-                contents.append((words_line, int(label), seq_len))
+
+                contents.append((token, int(label), seq_len))
         return contents  # [([...], 0), ([...], 1), ...]
     train = load_dataset(config.train_path, config.pad_size)
     dev = load_dataset(config.dev_path, config.pad_size)
     test = load_dataset(config.test_path, config.pad_size)
-    return vocab, train, dev, test
+    return train, dev, test
 
 
 class DatasetIterater(object):
@@ -131,30 +120,60 @@ def get_time_dif(start_time):
 
 if __name__ == "__main__":
     '''提取预训练词向量'''
-    # 下面的目录、文件名按需更改。
-    # train_dir = "./THUCNews/data/train.txt"
-    # vocab_dir = "./THUCNews/data/vocab.pkl"
-    # pretrain_dir = "./THUCNews/data/sgns.sogou.char"
-    # emb_dim = 300
-    # filename_trimmed_dir = "./THUCNews/data/embedding_SougouNews"
-    # if os.path.exists(vocab_dir):
-    #     word_to_id = pkl.load(open(vocab_dir, 'rb'))
-    # else:
-    #     # tokenizer = lambda x: x.split(' ')  # 以词为单位构建词表(数据集中词之间以空格隔开)
-    #     tokenizer = lambda x: [y for y in x]  # 以字为单位构建词表
-    #     word_to_id = build_vocab(train_dir, tokenizer=tokenizer, max_size=MAX_VOCAB_SIZE, min_freq=1)
-    #     pkl.dump(word_to_id, open(vocab_dir, 'wb'))
-    #
-    # embeddings = np.random.rand(len(word_to_id), emb_dim)
-    # f = open(pretrain_dir, "r", encoding='UTF-8')
-    # for i, line in enumerate(f.readlines()):
-    #     # if i == 0:  # 若第一行是标题，则跳过
-    #     #     continue
-    #     lin = line.strip().split(" ")
-    #     if lin[0] in word_to_id:
-    #         idx = word_to_id[lin[0]]
-    #         emb = [float(x) for x in lin[1:301]]
-    #         embeddings[idx] = np.asarray(emb, dtype='float32')
-    # f.close()
-    # np.savez_compressed(filename_trimmed_dir, embeddings=embeddings)
+    model_bert = BertModel.from_pretrained("/Users/iris/Downloads/bert-base-uncased")
+    model_bert.eval()
+    tokenizer_bert = BertTokenizer.from_pretrained("/Users/iris/Downloads/bert-base-uncased")
+
+    train_dir = "/Users/iris/Desktop/DuPa-ASA/data/IMDB/train.txt"
+    vocab_dir = "/Users/iris/Downloads/bert-base-uncased/vocab.txt"
+    filename_trimmed_dir = "/Users/iris/Desktop/DuPa-ASA/data/IMDB/embeddings.npz"
+
+    if os.path.exists(vocab_dir):
+        word_to_id = tokenizer_bert.get_vocab()
+    else:
+        print(False)
+        #tokenizer = lambda x: tokenizer.encode(x, add_special_tokens=False)
+        #word_to_id = build_vocab(train_dir, tokenizer=tokenizer, max_size=MAX_VOCAB_SIZE, min_freq=1)
+        #pkl.dump(word_to_id, open(vocab_dir, 'wb'))
+
+    max_sequence_length = 512  # 指定最大的序列长度
+
+    embeddings = []
+
+    with open(train_dir, "r", encoding='UTF-8') as f:
+        for i, line in tqdm(enumerate(f.readlines()), total=len(f.readlines()), desc="Processing"):
+            lin = line.strip()
+            if not lin:
+                continue
+            content, label = lin.split('\t')
+
+            raw_token = tokenizer_bert.tokenize(content)
+
+            # 截断或缩短 raw_token 以适应最大序列长度
+            if len(raw_token) > max_sequence_length:
+                raw_token = raw_token[:max_sequence_length]
+
+            with torch.no_grad():
+                input_ids = tokenizer_bert.convert_tokens_to_ids(raw_token)
+                # 确保输入长度为 max_sequence_length
+                if len(input_ids) < max_sequence_length:
+                    input_ids += [tokenizer_bert.pad_token_id] * (max_sequence_length - len(input_ids))
+                else:
+                    input_ids = input_ids[:max_sequence_length]
+
+                    # 创建 attention_mask
+                attention_mask = [1] * len(input_ids)
+                with torch.no_grad():
+                    output = model_bert(torch.tensor(input_ids).unsqueeze(0),
+                                        attention_mask=torch.tensor(attention_mask).unsqueeze(0))[0].mean(
+                        dim=1).squeeze()
+
+            embeddings.append((output, int(label)))
+
+    f.close()
+
+    embeddings = [e[0].numpy() for e in embeddings]
+    embeddings = np.array(embeddings, dtype='float32')
+    np.savez_compressed(filename_trimmed_dir, embeddings=embeddings)
+
     print('1')

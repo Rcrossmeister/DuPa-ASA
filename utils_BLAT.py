@@ -16,16 +16,16 @@ UNK, PAD = '<UNK>', '<PAD>'  # 未知字，padding符号
 
 class Config:
     def __init__(self):
-        self.train_path = "train.txt"  # 修改为你的训练数据路径
-        self.dev_path = "dev.txt"  # 修改为你的验证数据路径
-        self.test_path = "test.txt"  # 修改为你的测试数据路径
+        self.train_path = "/Users/iris/Desktop/DuPa-ASA/data/IMDB/train.txt"  # 修改为你的训练数据路径
+        self.dev_path = "/Users/iris/Desktop/DuPa-ASA/data/IMDB/dev.txt"  # 修改为你的验证数据路径
+        self.test_path = "/Users/iris/Desktop/DuPa-ASA/data/IMDB/test.txt"  # 修改为你的测试数据路径
         self.pad_size = 360  # 根据需求设置句子的最大长度
 
 config=Config()
 
 def build_dataset(config, use_word):
     if use_word:
-        tokenizer_bert = BertTokenizer.from_pretrained("bert-base-uncased")  # 使用BERT的Tokenizer
+        tokenizer_bert = BertTokenizer.from_pretrained("/Users/iris/Downloads/bert-base-uncased")  # 使用BERT的Tokenizer
     else:
         tokenizer = lambda x: [y for y in x]  # char-level
 
@@ -125,20 +125,18 @@ def get_time_dif(start_time):
 if __name__ == "__main__":
     '''提取预训练词向量'''
     # 下面的目录、文件名按需更改。
-    train_dir = "./THUCNews/data/train.txt"
-    vocab_dir = "./THUCNews/data/vocab.pkl"
-    pretrain_dir = "./THUCNews/data/sgns.sogou.char"
-    emb_dim = 300
-    filename_trimmed_dir = "./THUCNews/data/embedding_SougouNews"
-    if os.path.exists(vocab_dir):
-        word_to_id = pkl.load(open(vocab_dir, 'rb'))
-    else:
+    train_dir = "./IMDB/data/train.txt"
+    vocab_dir = "./home/yjy/enter/bert-base-uncased/vocab.pkl"
+    #emb_dim = 300
+    ##if os.path.exists(vocab_dir):
+       # word_to_id = pkl.load(open(vocab_dir, 'rb'))
+    #else:
         # tokenizer = lambda x: x.split(' ')  # 以词为单位构建词表(数据集中词之间以空格隔开)
         # tokenizer = lambda x: [y for y in x]  # 以字为单位构建词表
-        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-        word_to_id = tokenizer.encode(train_dir, add_special_tokens=True)
-        pkl.dump(word_to_id, open(vocab_dir, 'wb'))
-
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    word_to_id = tokenizer.encode(train_dir, add_special_tokens=True)
+    pkl.dump(word_to_id, open(vocab_dir, 'wb'))
+    # if os.path.exists(filename_trimmed_dir + '.npz'):
     embeddings = np.random.rand(len(word_to_id), emb_dim)
     f = open(pretrain_dir, "r", encoding='UTF-8')
     for i, line in enumerate(f.readlines()):
@@ -151,3 +149,6 @@ if __name__ == "__main__":
             embeddings[idx] = np.asarray(emb, dtype='float32')
     f.close()
     np.savez_compressed(filename_trimmed_dir, embeddings=embeddings)
+
+
+
