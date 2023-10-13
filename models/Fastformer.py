@@ -1,3 +1,5 @@
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '8'
 import torch
 import torch.nn as nn
 import logging
@@ -21,7 +23,7 @@ class Config(object):
         self.embedding_pretrained = torch.tensor(
             np.load(dataset + '/data/' + embedding)["embeddings"].astype('float32'))\
             if embedding != 'random' else None                                       # 预训练词向量
-        self.device = torch.device('cuda:2' if torch.cuda.is_available() else 'cpu')   # 设备
+        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')   # 设备
 
         self.dropout = 0.2                                              # 随机失活
         self.require_improvement = 1000                                 # 若超过1000batch效果还没提升，则提前结束训练
@@ -36,7 +38,7 @@ class Config(object):
         self.num_attention_heads = 1                                    # 头个数
         self.initializer_range = 0.02                                   # 正态分布的方差
         self.mask = False                                               # 有没有Mask
-        self.hidden_size = 256                                          # 用来初始化 BertSelfOutput
+        self.hidden_size = 300                                          # 用来初始化 BertSelfOutput
         self.hidden_act = "gelu"                                        # 中间层激活函数
         self.intermediate_size = 300                                    # 中间层维度
         self.max_position_embeddings = 300                              # 位置嵌入维度

@@ -39,31 +39,31 @@ python run.py --model=BLAT --embedding=random --word True
 
 Without bert:
 
-| Model       | IMDB       | Yelp-2     | Yelp-5     | Amazon     |
-| ----------- | ---------- | ---------- | ---------- | ---------- |
-| BiLSTM      | 0.5098     | 0.7081     | 0.6316     | 0.5061     |
-| TextCNN     | 0.8702     | 0.9681     | 0.7735     | 0.8947     |
-| TextCNN_Att | 0.8644     | 0.9639     | 0.7137     | 0.8756     |
-| TextRCNN    | 0.7480     | 0.9267     | 0.7186     | 0.8377     |
-| Transformer | 0.7746     | 0.9344     | 0.7110     | 0.8093     |
-| DPCNN       |            |            |            | 0.9058     |
-| Fasttext    |            |            |            | 0.8513     |
-| Fastformer  |            |            |            |            |
-| **BLAT**    | **0.8630** | **0.9731** | **0.7861** | **0.9119** |
+| Model       | IMDB       | Yelp-2     | Yelp-5     | Amazon     | Average |
+| ----------- | ---------- | ---------- | ---------- | ---------- | ------- |
+| BiLSTM      | 0.5098     | 0.7081     | 0.6316     | 0.5061     | 0.5889  |
+| TextCNN     | 0.8702     | 0.9681     | 0.7735     | 0.8947     | 0.87663 |
+| TextCNN_Att | 0.8644     | 0.9639     | 0.7137     | 0.8756     | 0.8544  |
+| TextRCNN    | 0.7480     | 0.9267     | 0.7186     | 0.8377     | 0.8078  |
+| Transformer | 0.7746     | 0.9344     | 0.7110     | 0.8093     | 0.8073  |
+| DPCNN       | 0.8742     | 0.9723     | 0.7796     | 0.9058     | 0.8830  |
+| Fasttext    | 0.8766     | 0.9534     | 0.7380     | 0.8517     | 0.8549  |
+| Fastformer  | 0.8718     | 0.9664     | 0.7739     | 0.8813     | 0.8734  |
+| **BLAT**    | **0.8630** | **0.9731** | **0.7861** | **0.9119** | 0.8835  |
 
 BLAT with bert, others use bert realated but no bert embedding:
 
-| Model          | IMDB       | Yelp-2 | Yelp-5 | Amazon |
-| -------------- | ---------- | ------ | ------ | ------ |
-| BiLSTM         |            |        |        |        |
-| TextCNN        |            |        |        |        |
-| TextCNN_Att    |            |        |        |        |
-| TextRCNN       |            |        |        |        |
-| Transformer    |            |        |        |        |
-| DPCNN          |            |        |        |        |
-| Fasttext       |            |        |        |        |
-| Fastformer     |            |        |        |        |
-| **BLAT(bert)** | **0.8952** | ****   | ****   | ****   |
+| Model          | IMDB       | Yelp-2 | Yelp-5 | Amazon | Average |
+| -------------- | ---------- | ------ | ------ | ------ | ------- |
+| BiLSTM         |            |        |        |        |         |
+| TextCNN        |            |        |        |        |         |
+| TextCNN_Att    |            |        |        |        |         |
+| TextRCNN       |            |        |        |        |         |
+| Transformer    |            |        |        |        |         |
+| DPCNN          |            |        |        |        |         |
+| Fasttext       |            |        |        |        |         |
+| Fastformer     |            |        |        |        |         |
+| **BLAT(bert)** | **0.8952** | ****   | ****   | ****   |         |
 
 ## Citation
 
