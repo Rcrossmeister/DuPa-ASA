@@ -53,17 +53,17 @@ Without bert:
 
 BLAT with bert, others use bert realated but no bert embedding:
 
-| Model          | IMDB       | Yelp-2 | Yelp-5 | Amazon | Average |
-| -------------- | ---------- | ------ | ------ | ------ | ------- |
-| BiLSTM         |            |        |        |        |         |
-| TextCNN        |            |        |        |        |         |
-| TextCNN_Att    |            |        |        |        |         |
-| TextRCNN       |            |        |        |        |         |
-| Transformer    |            |        |        |        |         |
-| DPCNN          |            |        |        |        |         |
-| Fasttext       |            |        |        |        |         |
-| Fastformer     |            |        |        |        |         |
-| **BLAT(bert)** | **0.8952** | ****   | ****   | ****   |         |
+| Model          | IMDB       | Yelp-2     | Yelp-5     | Amazon     | Average    |
+| -------------- | ---------- | ---------- | ---------- | ---------- | ---------- |
+| BiLSTM         |            |            |            |            |            |
+| TextCNN        |            |            |            |            |            |
+| TextCNN_Att    |            |            |            |            |            |
+| TextRCNN       |            |            |            |            |            |
+| Transformer    |            |            |            |            |            |
+| DPCNN          |            |            |            |            |            |
+| Fasttext       |            |            |            |            |            |
+| Fastformer     |            |            |            |            |            |
+| **BLAT(bert)** | **0.8954** | **0.9744** | **0.7915** | **0.9188** | **0.8950** |
 
 ## Citation
 

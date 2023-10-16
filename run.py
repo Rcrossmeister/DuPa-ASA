@@ -5,16 +5,20 @@ import numpy as np
 from train_eval import train, init_network
 from importlib import import_module
 import argparse
+from transformers import BertConfig, BertModel, BertTokenizer
+bert_model = BertModel.from_pretrained("/home/sy/code/DUPA-ASA/bert-base-uncased")
+bert_tokenizer = BertTokenizer.from_pretrained("/home/sy/code/DUPA-ASA/bert-base-uncased")
 
 parser = argparse.ArgumentParser(description='Project_DUPA')
 parser.add_argument('--model', type=str, required=True, help='choose a model: TextCNN, TextRNN, FastText, TextRCNN, TextRNN_Att, DPCNN, Transformer')
 parser.add_argument('--embedding', default='pre_trained', type=str, help='random or pre_trained')
 parser.add_argument('--word', default=False, type=bool, help='True for word, False for char')
+parser.add_argument('--data',required=True,help='choose a dataset:IMDB,Yelp,Yelp5,Amazon')
 args = parser.parse_args()
 
 if __name__ == '__main__':
 
-    dataset = '/home/sy/code/DUPA-ASA/data/Amazon'  # 数据集
+    dataset = '/home/sy/code/DUPA-ASA/data/'+args.data  # 数据集
 
     # 搜狗新闻:embedding_SougouNews.npz, 腾讯:embedding_Tencent.npz, 随机初始化:random
     embedding = 'embeddings.npz'
@@ -46,7 +50,8 @@ if __name__ == '__main__':
     if model_name == 'BLAT-inter':
         raw_vocab, extract_vocab, train_data, dev_data, test_data = build_dataset(config, args.word)
     else:
-        vocab, train_data, dev_data, test_data = build_dataset(config, args.word)
+        train_data, dev_data, test_data = build_dataset(config, args.word)
+    vocab = "/home/sy/code/DUPA-ASA/bert-base-uncased/vocab.txt"
     train_iter = build_iterator(train_data, config)
     dev_iter = build_iterator(dev_data, config)
     test_iter = build_iterator(test_data, config)
