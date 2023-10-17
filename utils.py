@@ -5,7 +5,7 @@ import pickle as pkl
 from tqdm import tqdm
 import time
 from datetime import timedelta
-from transformers import BertTokenizer, BertModel
+from transformers import BertTokenizer
 
 
 MAX_VOCAB_SIZE = 10000  # 词表长度限制 52对于10000适用
@@ -18,7 +18,7 @@ def build_dataset(config, use_word):  #获得vocab和各个集中的词信息
     else:
         tokenizer = lambda x: [y for y in x]  # char-level
 
-    def load_dataset(path, pad_size=32):
+    def load_dataset(path, pad_size):
         contents = []
         with open(path, 'r', encoding='UTF-8') as f:
             for line in tqdm(f):
@@ -30,7 +30,7 @@ def build_dataset(config, use_word):  #获得vocab和各个集中的词信息
                 except:
                     lin = lin.replace('\t', ' ').rstrip()[:-1] + '\t' + lin[-1]
                     content, label = lin.split('\t')  #分割文本与label
-                words_line = []
+
                 token = tokenizer.encode(content, add_special_tokens=True, truncation=True, max_length=360,
                                          padding=True)  # 使用BERT的tokenizer对文本进行编码
                 seq_len = len(token)

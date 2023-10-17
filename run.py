@@ -5,9 +5,6 @@ import numpy as np
 from train_eval import train, init_network
 from importlib import import_module
 import argparse
-from transformers import BertConfig, BertModel, BertTokenizer
-bert_model = BertModel.from_pretrained("/home/sy/code/DUPA-ASA/bert-base-uncased")
-bert_tokenizer = BertTokenizer.from_pretrained("/home/sy/code/DUPA-ASA/bert-base-uncased")
 
 parser = argparse.ArgumentParser(description='Project_DUPA')
 parser.add_argument('--model', type=str, required=True, help='choose a model: TextCNN, TextRNN, FastText, TextRCNN, TextRNN_Att, DPCNN, Transformer')

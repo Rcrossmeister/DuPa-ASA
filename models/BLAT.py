@@ -3,10 +3,10 @@ import torch.nn as nn
 from transformers import BertConfig
 import numpy as np
 import torch.nn.functional as F
-from transformers import BertConfig, BertModel, BertTokenizer
+from transformers import BertConfig, BertModel
 
 bert_model = BertModel.from_pretrained("/home/sy/code/DUPA-ASA/bert-base-uncased")
-bert_tokenizer = BertTokenizer.from_pretrained("/home/sy/code/DUPA-ASA/bert-base-uncased")
+
 class Config(object):
 
     """配置参数"""
@@ -22,7 +22,7 @@ class Config(object):
         self.log_path = dataset + '/log/' + self.model_name
 
         ##把原本的random_embedding换成bert的
-        self.embedding_pretrained = bert_model.embeddings.word_embeddings.weight                                         # 预训练词向量
+        self.embedding_pretrained = bert_model.embeddings.word_embeddings.weight     # 预训练词向量
 
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')   # 设备
         """
