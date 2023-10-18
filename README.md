@@ -9,14 +9,10 @@ _Note : Model need interface._
 
 *Note: The test parameter need to be appointed.*
 
-__Update:__
-
-* *A xxx is released. 09-015-2023*
-
 **TO-DO:**
 
 1. Combine transfer study. (BERT, XLNet)
-2. Ablation Study.
+2. **Ablation Study. (Next week)**
 3. Need more comprehensive analysis of the model's sensitivity to different parameter settings.
 
 ## DataSet
