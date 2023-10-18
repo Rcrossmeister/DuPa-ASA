@@ -54,7 +54,7 @@ With transfer learning:
 | Bert            |            |            |            |            |            |
 | xlnet           |            |            |            |            |            |
 | **BLAT(bert)**  | **0.8954** | **0.9744** | **0.7915** | **0.9188** | **0.8950** |
-| **BLAT(xlnet)** | **0.8952** |            |            |            |            |
+| **BLAT(xlnet)** | **0.8874** |            |            |            |            |
 
 ## Citation
 
