@@ -50,20 +50,10 @@ Without bert:
 | Fasttext    | 0.8766     | 0.9534     | 0.7380     | 0.8517     | 0.8549  |
 | Fastformer  | 0.8718     | 0.9664     | 0.7739     | 0.8813     | 0.8734  |
 | **BLAT**    | **0.8630** | **0.9731** | **0.7861** | **0.9119** | 0.8835  |
-
-BLAT with bert, others use bert realated but no bert embedding:
-
-| Model          | IMDB       | Yelp-2 | Yelp-5 | Amazon | Average |
-| -------------- | ---------- | ------ | ------ | ------ | ------- |
-| BiLSTM         |            |        |        |        |         |
-| TextCNN        |            |        |        |        |         |
-| TextCNN_Att    |            |        |        |        |         |
-| TextRCNN       |            |        |        |        |         |
-| Transformer    |            |        |        |        |         |
-| DPCNN          |            |        |        |        |         |
-| Fasttext       |            |        |        |        |         |
-| Fastformer     |            |        |        |        |         |
 | **BLAT(bert)** | **0.8952** | ****   | ****   | ****   |         |
+| **BLAT(xlnet)** | **0.8952** | ****   | ****   | ****   |         |
+
+
 
 ## Citation
 
