@@ -11,9 +11,9 @@ _Note : Model need interface._
 
 **TO-DO:**
 
-1. Combine transfer study. (BERT, XLNet)
-2. **Ablation Study. (Next week)**
-3. Need more comprehensive analysis of the model's sensitivity to different parameter settings.
+- [x] Combine transfer study. (BERT, XLNet) 
+- [ ] **Ablation Study. (Next week)**
+- [ ] Need more comprehensive analysis of the model's sensitivity to different parameter settings.
 
 ## DataSet
 
