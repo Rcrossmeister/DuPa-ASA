@@ -36,7 +36,7 @@ if __name__ == '__main__':
     if model_name == 'BLAT-inter':
         config = x.Config(dataset, raw_embedding, extract_embedding)
     else:
-        config = x.Config(dataset, embedding)
+        config = x.Config(dataset)
     np.random.seed(88)
     torch.manual_seed(88)
     torch.cuda.manual_seed_all(88)
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     if model_name == 'BLAT-inter':
         raw_vocab, extract_vocab, train_data, dev_data, test_data = build_dataset(config, args.word)
     else:
-        train_data, dev_data, test_data = build_dataset(config, args.word)
+        train_data, dev_data, test_data = build_dataset(config)
     vocab = "/home/sy/code/DUPA-ASA/bert-base-uncased/vocab.txt"
     train_iter = build_iterator(train_data, config)
     dev_iter = build_iterator(dev_data, config)
@@ -57,11 +57,6 @@ if __name__ == '__main__':
     print("Time usage:", time_dif)
 
     # train
-    if model_name == 'BLAT-inter':
-        config.raw_n_vocab = len(raw_vocab)
-        config.extract_n_vocab = len(extract_vocab)
-    else:
-        config.n_vocab = len(vocab)
     model = x.Model(config).to(config.device)
     if model_name != 'Transformer':
 

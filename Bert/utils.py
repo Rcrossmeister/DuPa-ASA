@@ -35,7 +35,7 @@ def build_dataset(config):
                         token_ids = token_ids[:pad_size]
                         seq_len = pad_size
                 contents.append((token_ids, int(label), seq_len, mask))
-            return contents
+        return contents
     train = load_dataset(config.train_path, config.pad_size)
     dev = load_dataset(config.dev_path, config.pad_size)
     test = load_dataset(config.test_path, config.pad_size)
