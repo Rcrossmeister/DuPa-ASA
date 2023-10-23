@@ -1,6 +1,7 @@
 # coding: UTF-8
 import time
 import torch
+from torch.nn import DataParallel
 import numpy as np
 from train_eval import train, init_network
 from importlib import import_module
@@ -36,6 +37,7 @@ if __name__ == '__main__':
 
     # train
     model = x.Model(config).to(config.device)
+
     if model_name != 'Transformer':
         init_network(model)
 
