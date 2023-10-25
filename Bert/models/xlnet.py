@@ -1,6 +1,6 @@
 # coding: UTF-8
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '6'
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 import torch
 import torch.nn as nn
 from transformers import XLNetModel, XLNetTokenizer

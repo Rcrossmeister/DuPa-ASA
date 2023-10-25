@@ -36,7 +36,8 @@ if __name__ == '__main__':
     print("Time usage:", time_dif)
 
     # train
-    model = x.Model(config).to(config.device)
+    model = x.Model(config)
+    model=DataParallel(model,device_ids=[0,1]).to(config.device)
 
     if model_name != 'Transformer':
         init_network(model)
