@@ -37,7 +37,8 @@ if __name__ == '__main__':
 
     # train
     model = x.Model(config)
-    model=DataParallel(model,device_ids=[0,1]).to(config.device)
+    model = DataParallel(model, device_ids=[0, 1]).to(config.device)
+
 
     if model_name != 'Transformer':
         init_network(model)
