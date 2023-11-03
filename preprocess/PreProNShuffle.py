@@ -64,9 +64,9 @@ def main():
     parser.add_argument("--preprocess", default=False, action='store_true')
     parser.add_argument("--shuffle", default=False, action='store_true')
     parser.add_argument("--raw_data", default='', action='store_true')
-    parser.add_argument("--shuffle_data", default='/home/sy/code/DUPA-ASA/data/Amazon/Edited_Data.txt',
+    parser.add_argument("--shuffle_data", default='/home/sy/code/DUPA-ASA/data/Yelp5/Edited_Data.txt',
                         action='store_true')
-    parser.add_argument("--obj_path", default='/home/sy/code/DUPA-ASA/data/Amazon/data', action='store_true')
+    parser.add_argument("--obj_path", default='/home/sy/code/DUPA-ASA/data/Yelp5/data', action='store_true')
 
     args = parser.parse_args()
 

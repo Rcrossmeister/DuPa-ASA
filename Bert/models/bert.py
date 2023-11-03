@@ -1,6 +1,6 @@
 # coding: UTF-8
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 import torch
 import torch.nn as nn
 from transformers import BertModel, BertTokenizer
@@ -25,7 +25,7 @@ class Config(object):
         self.batch_size = 64                                           # mini-batch大小
         self.pad_size = 256                                              # 每句话处理成的长度(短填长切)
         self.learning_rate = 1e-3                                       # 学习率
-        self.bert_path = '/home/sy/code/DUPA-ASA/bert/bert_pretrain'
+        self.bert_path = '/home/sy/code/DUPA-ASA/bert-base-uncased'
         self.tokenizer = BertTokenizer.from_pretrained(self.bert_path)
         self.hidden_size = 768
 
