@@ -1,6 +1,6 @@
 # coding: UTF-8
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,2'
 import torch
 import torch.nn as nn
 from transformers import BertModel, BertTokenizer
