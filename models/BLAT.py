@@ -23,7 +23,8 @@ class Config(object):
         self.log_path = dataset + '/log/' + self.model_name
 
         ##把原本的random_embedding换成bert的
-        self.embedding_pretrained = xlnet_model.embeddings.word_embeddings.weight     # 预训练词向量
+        self.embedding_pretrained = xlnet_model.word_embedding.weight
+    # 预训练词向量
 
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')   # 设备
         """

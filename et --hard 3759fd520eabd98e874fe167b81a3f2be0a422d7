@@ -1,0 +1,134 @@
+[33mcommit 02ba1030d933119a96ebfbdd84be8f4df12e17ac[m[33m ([m[1;36mHEAD -> [m[1;32msy_xlnet[m[33m)[m
+Author: Stepuuu2 <1609671748@qq.com>
+Date:   Tue Oct 17 20:56:58 2023 +0800
+
+    update Readme
+
+[33mcommit 3759fd520eabd98e874fe167b81a3f2be0a422d7[m
+Author: Stepuuu2 <1609671748@qq.com>
+Date:   Mon Oct 16 18:47:46 2023 +0800
+
+    BLAT_test_finish
+
+[33mcommit edf7bbf347548dda49942f5b3d4a51c386d71383[m[33m ([m[1;31morigin/sy[m[33m)[m
+Author: Stepuuu2 <1609671748@qq.com>
+Date:   Fri Oct 13 09:51:43 2023 +0800
+
+    update README
+
+[33mcommit 3a2953541a4ca342132a0692bd3ab9984161544a[m
+Author: Stepuuu2 <1609671748@qq.com>
+Date:   Wed Oct 11 21:39:51 2023 +0800
+
+    debug&update Readme
+
+[33mcommit ff8bddd9154e0627f55b3b0a72e63497290ab2fc[m
+Merge: f69fcb4 abb0024
+Author: Stepuuu2 <1609671748@qq.com>
+Date:   Wed Oct 11 20:54:30 2023 +0800
+
+    Merge branch 'main' of https://github.com/Rcrossmeister/Dupa-ASA into sy
+
+[33mcommit f69fcb4f2fc0999d7c07ddfb1a8e5f8cbbde3328[m
+Author: Stepuuu2 <1609671748@qq.com>
+Date:   Wed Oct 11 20:50:55 2023 +0800
+
+    debug models
+
+[33mcommit abb0024465ba8d62e1c9992cc4cd5e30591dd0ec[m
+Author: IRis0550 <107255817+IRis0550@users.noreply.github.com>
+Date:   Wed Oct 11 01:06:16 2023 +0100
+
+    Update README.md
+    
+    new result with BLAT_bert
+
+[33mcommit bd73f7ca8655d0fa062e533dccf63736812ae523[m
+Author: Rcrossmeister <403183707@QQ.COM>
+Date:   Sat Sep 30 01:41:20 2023 +0800
+
+    Update README.md
+
+[33mcommit d1c409693b97a7a5166cd6ef470adedf2a1b9ac2[m
+Author: Rcrossmeister <403183707@QQ.COM>
+Date:   Fri Sep 29 13:18:15 2023 +0800
+
+    remove useless
+
+[33mcommit 207e290dd970a56cbe04c4dbc59cacddcca19289[m
+Author: IRis0550 <IrisYANGJiaying11@163.com>
+Date:   Wed Sep 27 13:56:05 2023 +0100
+
+    Bert_try
+
+[33mcommit 9fb21297f19c3751b9a45737426f1998efe06e38[m
+Author: Stepuuu2 <1609671748@qq.com>
+Date:   Wed Sep 27 18:28:02 2023 +0800
+
+    update readme
+
+[33mcommit 717e771f038c81d2e7e27624e532859c20ae6fc4[m
+Author: Stepuuu2 <1609671748@qq.com>
+Date:   Wed Sep 27 18:26:13 2023 +0800
+
+    update Readme
+
+[33mcommit ddfca44ddfbcb51667a5205e3619613de1701a84[m
+Author: Stepuuu2 <1609671748@qq.com>
+Date:   Tue Sep 26 13:10:06 2023 +0800
+
+    find back data
+
+[33mcommit 5a37565e7d4de717e106a7237c421871a76ea076[m
+Author: Rcrossmeister <403183707@QQ.COM>
+Date:   Tue Sep 26 11:35:12 2023 +0800
+
+    Update workspace.xml
+
+[33mcommit 7bb2f3482f9fbe611d1ea967bf9453df2eb181d8[m
+Author: Rcrossmeister <403183707@QQ.COM>
+Date:   Sun Sep 24 10:46:13 2023 +0800
+
+    Update README.md
+
+[33mcommit 4295bf56bf7a0f881657181d24d56202a7927287[m
+Author: Rcrossmeister <403183707@QQ.COM>
+Date:   Sat Sep 23 21:33:46 2023 +0800
+
+    Update workspace.xml
+
+[33mcommit c8aed008f93277605b56402a55a89d685f2d8e51[m
+Author: Rcrossmeister <403183707@QQ.COM>
+Date:   Tue Sep 19 17:37:27 2023 +0800
+
+    Update README.md
+
+[33mcommit 970fe869dadd23881fc5648a5ff78a5456b6988f[m
+Author: Rcrossmeister <403183707@QQ.COM>
+Date:   Tue Sep 19 10:40:00 2023 +0800
+
+    Update workspace.xml
+
+[33mcommit 4bf2129edfdd9aa45595560f5f814d1a22f7f757[m[33m ([m[1;31morigin/yjy[m[33m)[m
+Author: Rcrossmeister <403183707@QQ.COM>
+Date:   Sun Sep 17 01:59:19 2023 +0800
+
+    Update README.md
+
+[33mcommit 17bb19f2914014f148a519f947069f53a743d916[m
+Author: Rcrossmeister <403183707@QQ.COM>
+Date:   Wed Sep 13 17:44:03 2023 +0800
+
+    Update workspace.xml
+
+[33mcommit 09433d182383b2e4fdf3dc40a1263862c0dda725[m
+Author: Rcrossmeister <403183707@QQ.COM>
+Date:   Tue Sep 12 19:52:41 2023 +0800
+
+    Update .gitignore
+
+[33mcommit 66c4f38c1da29d5332160a513ef336ae201f7d08[m
+Author: Rcrossmeister <403183707@QQ.COM>
+Date:   Tue Sep 12 19:02:58 2023 +0800
+
+    Initial commit
