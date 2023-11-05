@@ -33,7 +33,7 @@ python run.py --model=BLAT --embedding=random --word True
 
 ## Results
 
-Without bert(seed88):
+Without transfer learning(seed88):
 
 | Model       | IMDB       | Yelp-2     | Yelp-5     | Amazon     | Average |
 | ----------- | ---------- | ---------- | ---------- | ---------- | ------- |
@@ -52,15 +52,15 @@ With transfer learning(seed 88):
 | Model                 | IMDB       | Yelp-2     | Yelp-5     | Amazon     | Average    |
 | --------------------  | ---------- | ---------- | ---------- | ---------- | ---------- |
 | bert(bz=64, S)        | 0.8721 | 0.9562 | 0.7495 |            |            |
-| bert(bz=64, P)        | 0.8789     |            | 0.7508 | 0.8446 |            |
-| bert(bz=128,P)        |            |            |            |            |            |
+|                 |            |            |            |            |            |
+|                 |            |            |            |            |            |
 | xlnet(bz=64,S)        | 0.8955 | 0.9572 | 0.7541 | 0.8601 | 0.8667 |
-| xlnet(bz=64,P)        |            |            |            |            |            |
-| xlnet(bz=128,P)       |            |            |            |            |            |
+|                 |            |            |            |            |            |
+|                 |            |            |            |            |            |
 | **BLAT(bert)**        | **0.8954** | **0.9744** | **0.7915** | **0.9188** | **0.8950** |
 | **BLAT(xlnet)**       | **0.8874** | **0.9748** | **0.7892** | **0.9215** | **0.8932** |
-| **BLAT(bert-large)**  | **0.8908** | **0.** | **0.** | **0.** | **0.** |
-| **BLAT(xlnet-large)** | **0.8634** | **0.** | **0.** | **0.** | **0.** |
+|                 |            |            |            |            |            |
+|                 |            |            |            |            |            |
 
 seed:3407,bz=128, 2080ti，单卡
 
@@ -72,7 +72,7 @@ seed:3407,bz=128, 2080ti，单卡
 | **BLAT(bert-large)**  |            |            |            |            |            |
 | **BLAT(xlnet-large)** |            |            |            |            |            |
 
-seed:3407, bz=64, 2080ti, 多卡
+seed:88, bz=64, 2080ti, 多卡
 
 | Model           | IMDB | Yelp-2 | Yelp-5 | Amazon | Average |
 | --------------- | ---- | ------ | ------ | ------ | ------- |
