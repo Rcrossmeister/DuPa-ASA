@@ -1,12 +1,12 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 import torch
 import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
 from transformers import XLNetModel,BertModel
 
-bert_model = BertModel.from_pretrained("/home/sy/code/DUPA-ASA/bert-base-uncased")
+xlnet_model = XLNetModel.from_pretrained("/home/sy/code/DUPA-ASA/xlnet-large-cased")
 
 class Config(object):
 
@@ -23,7 +23,7 @@ class Config(object):
         self.log_path = dataset + '/log/' + self.model_name
 
         ##把原本的random_embedding换成bert的
-        self.embedding_pretrained = bert_model.embeddings.word_embeddings.weight
+        self.embedding_pretrained = xlnet_model.word_embedding.weight
     # 预训练词向量
 
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')   # 设备

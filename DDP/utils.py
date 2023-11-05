@@ -3,38 +3,39 @@ import torch
 from tqdm import tqdm
 import time
 from datetime import timedelta
-from transformers import XLNetTokenizer,BertTokenizer
 
 PAD, CLS = '[PAD]', '[CLS]'  # padding符号, bert中综合信息符号
 
 
 def build_dataset(config):
-    tokenizer = XLNetTokenizer.from_pretrained("/home/sy/code/DUPA-ASA/xlnet-large-cased")
-    def load_dataset(path, pad_size):
+
+    def load_dataset(path, pad_size=32):
         contents = []
         with open(path, 'r', encoding='UTF-8') as f:
             for line in tqdm(f):
                 lin = line.strip()
                 if not lin:
                     continue
-                try:
-                    content, label = lin.split('\t')
-                except:
-                    lin = lin.replace('\t', ' ').rstrip()[:-1] + '\t' + lin[-1]
-                    content, label = lin.split('\t')
-                words_line = []
-                token = tokenizer.encode(content, add_special_tokens=True,truncation=True,max_length=360,padding=True)  # 使用BERT的tokenizer对文本进行编码
+                parts = lin.split('\t')
+                if len(parts) != 2:
+                    continue  # skip this line
+                content, label = parts
+                token = config.tokenizer.tokenize(content)
+                token = [CLS] + token
                 seq_len = len(token)
+                mask = []
+                token_ids = config.tokenizer.convert_tokens_to_ids(token)
 
                 if pad_size:
                     if len(token) < pad_size:
-                        token.extend([tokenizer.pad_token_id] * (pad_size - len(token)))
+                        mask = [1] * len(token_ids) + [0] * (pad_size - len(token))
+                        token_ids += ([0] * (pad_size - len(token)))
                     else:
-                        token = token[:pad_size]
+                        mask = [1] * pad_size
+                        token_ids = token_ids[:pad_size]
                         seq_len = pad_size
-
-                contents.append((token, int(label), seq_len))
-        return contents  # [([...], 0), ([...], 1), ...]
+                contents.append((token_ids, int(label), seq_len, mask))
+        return contents
     train = load_dataset(config.train_path, config.pad_size)
     dev = load_dataset(config.dev_path, config.pad_size)
     test = load_dataset(config.test_path, config.pad_size)
@@ -58,7 +59,8 @@ class DatasetIterater(object):
 
         # pad前的长度(超过pad_size的设为pad_size)
         seq_len = torch.LongTensor([_[2] for _ in datas]).to(self.device)
-        return (x, seq_len), y
+        mask = torch.LongTensor([_[3] for _ in datas]).to(self.device)
+        return (x, seq_len, mask), y
 
     def __next__(self):
         if self.residue and self.index == self.n_batches:
