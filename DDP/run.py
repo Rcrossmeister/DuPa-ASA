@@ -14,30 +14,15 @@ from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.distributed import init_process_group, destroy_process_group
 
-def ddp_setup(rank, world_size):
-    """
-    Args:
-        rank: Unique identifier of each process
-        world_size: Total number of processes
-    """
-    os.environ["MASTER_ADDR"] = "localhost"
-    os.environ["MASTER_PORT"] = "12355"
-    init_process_group(backend="nccl", rank=rank, world_size=world_size)
-    torch.cuda.set_device(rank)
 
 parser = argparse.ArgumentParser(description='Dupa-Project')
+parser.add_argument("--local_rank", default=-1)
 parser.add_argument('--model', type=str, required=True, help='choose a model: bert, xlnet')
 parser.add_argument('--data',required=True,help='choose a dataset:IMDB,Yelp,Yelp5,Amazon')
 args = parser.parse_args()
-
-
-def main(rank: int, world_size: int, save_every: int, total_epochs: int, batch_size: int):
-    ddp_setup(rank, world_size)
-    dataset, model, optimizer = load_train_objs()
-    train_data = prepare_datalgit oader(dataset, batch_size)
-    trainer = Trainer(model, train_data, optimizer, rank, save_every)
-    trainer.train(total_epochs)
-    destroy_process_group()
+local_rank = args.local_rank
+torch.cuda.set_device(local_rank)
+init_process_group(backend='nccl')  # nccl是GPU设备上最快、最推荐的后端
 
 
 if __name__ == '__main__':
@@ -54,16 +39,21 @@ if __name__ == '__main__':
     start_time = time.time()
     print("Loading data...")
     train_data, dev_data, test_data = build_dataset(config)
+    train_sampler=DistributedSampler(train_data)
+#################接下来需要把之前手动定义的build_iterator函数替换为torch的Dataloader实例)#######
     train_iter = build_iterator(train_data, config)
     dev_iter = build_iterator(dev_data, config)
     test_iter = build_iterator(test_data, config)
+
     time_dif = get_time_dif(start_time)
     print("Time usage:", time_dif)
-
     # train
-    model = x.Model(config)
-    model = DDP(model, device_ids=[0, 1, 2, 3]).to(config.device)
+    model = x.Model(config).to(config.device)
 
+    # load模型要在构造DDP模型之前，且只需要在master上加载就行了。
+    if torch.distributed.get_rank() == 0:
+        model.load_state_dict(torch.load(config.save_path))
+    model = DDP(model, device_ids=[local_rank], output_device=local_rank)
 
     if model_name != 'Transformer':
         init_network(model)
@@ -72,6 +62,3 @@ if __name__ == '__main__':
     print(config.__dict__)
     train(config, model, train_iter, dev_iter, test_iter)
     torch.cuda.empty_cache()
-
-    world_size = torch.cuda.device_count()
-    mp.spawn(main, args=(world_size, args.save_every, args.total_epochs, args.batch_size), nprocs=world_size)

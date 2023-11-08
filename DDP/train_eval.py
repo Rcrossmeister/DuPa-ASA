@@ -8,6 +8,7 @@ import time
 from utils import get_time_dif
 from transformers import AdamW
 from transformers.optimization import get_linear_schedule_with_warmup
+import torch.distributed
 
 
 
@@ -59,6 +60,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
     flag = False  # 记录是否很久没有效果提升
     model.train()
     for epoch in range(config.num_epochs):
+        train_iter.sampler.set_epoch(epoch)
         print('Epoch [{}/{}]'.format(epoch + 1, config.num_epochs))
         for i, (trains, labels) in enumerate(train_iter):
             outputs = model(trains)
@@ -74,7 +76,8 @@ def train(config, model, train_iter, dev_iter, test_iter):
                 dev_acc, dev_loss = evaluate(config, model, dev_iter)
                 if dev_loss < dev_best_loss:
                     dev_best_loss = dev_loss
-                    torch.save(model.state_dict(), config.save_path)
+                    if torch.distributed.get_rank() == 0:
+                        torch.save(model.module.state_dict(), config.save_path)
                     improve = '*'
                     last_improve = total_batch
                 else:

@@ -39,6 +39,7 @@ def build_dataset(config):
     train = load_dataset(config.train_path, config.pad_size)
     dev = load_dataset(config.dev_path, config.pad_size)
     test = load_dataset(config.test_path, config.pad_size)
+
     return train, dev, test
 
 
@@ -78,7 +79,7 @@ class DatasetIterater(object):
             batches = self._to_tensor(batches)
             return batches
 
-    def __iter__(self):
+    def __iter__(self):   #先定义循环气iter，再定义next，next调用to_tensor方法产生到device的batch
         return self
 
     def __len__(self):
