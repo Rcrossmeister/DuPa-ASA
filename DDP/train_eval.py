@@ -68,7 +68,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
             loss = F.cross_entropy(outputs, labels)
             loss.backward()
             optimizer.step()
-            if total_batch % 100 == 0:
+            if total_batch % 100 == 0 and torch.distributed.get_rank() == 0:
                 # 每多少轮输出在训练集和验证集上的效果
                 true = labels.data.cpu()
                 predic = torch.max(outputs.data, 1)[1].cpu()
@@ -76,8 +76,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
                 dev_acc, dev_loss = evaluate(config, model, dev_iter)
                 if dev_loss < dev_best_loss:
                     dev_best_loss = dev_loss
-                    if torch.distributed.get_rank() == 0:
-                        torch.save(model.module.state_dict(), config.save_path)
+                    torch.save(model.module.state_dict(), config.save_path)
                     improve = '*'
                     last_improve = total_batch
                 else:

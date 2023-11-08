@@ -6,13 +6,13 @@ import numpy as np
 from train_eval import train, init_network
 from importlib import import_module
 import argparse
-from utils import build_dataset, build_iterator, get_time_dif
+from utils import CustomDataset, get_time_dif
 import os
-
-import torch.multiprocessing as mp
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,5,6'
 from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.distributed import init_process_group, destroy_process_group
+from torch.utils.data import DataLoader
 
 
 parser = argparse.ArgumentParser(description='Dupa-Project')
@@ -38,12 +38,17 @@ if __name__ == '__main__':
 
     start_time = time.time()
     print("Loading data...")
-    train_data, dev_data, test_data = build_dataset(config)
+
+    train_data = CustomDataset(config.train_path, config.tokenizer, config.pad_size)
+    dev_data=CustomDataset(config.dev_path, config.tokenizer, config.pad_size)
+    test_data=CustomDataset(config.test_path, config.tokenizer, config.pad_size)
+
     train_sampler=DistributedSampler(train_data)
-#################接下来需要把之前手动定义的build_iterator函数替换为torch的Dataloader实例)#######
-    train_iter = build_iterator(train_data, config)
-    dev_iter = build_iterator(dev_data, config)
-    test_iter = build_iterator(test_data, config)
+
+
+    train_iter = DataLoader(train_data,pin_memory=True, batch_size=config.batch_size, sampler=train_sampler)
+    dev_iter = DataLoader(dev_data,pin_memory=True, batch_size=config.batch_size)
+    test_iter = DataLoader(test_data,pin_memory=True, batch_size=config.batch_size)
 
     time_dif = get_time_dif(start_time)
     print("Time usage:", time_dif)

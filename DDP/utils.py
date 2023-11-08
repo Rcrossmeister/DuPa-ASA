@@ -3,13 +3,18 @@ import torch
 from tqdm import tqdm
 import time
 from datetime import timedelta
+from torch.utils.data import Dataset,DataLoader
 
 PAD, CLS = '[PAD]', '[CLS]'  # padding符号, bert中综合信息符号
 
 
-def build_dataset(config):
+class CustomDataset(Dataset):
+    def __init__(self, path, tokenizer, pad_size):
+        self.data = self.load_dataset(path, pad_size)
+        self.tokenizer = tokenizer
 
-    def load_dataset(path, pad_size=32):
+
+    def load_dataset(self, path, pad_size):
         contents = []
         with open(path, 'r', encoding='UTF-8') as f:
             for line in tqdm(f):
@@ -20,11 +25,11 @@ def build_dataset(config):
                 if len(parts) != 2:
                     continue  # skip this line
                 content, label = parts
-                token = config.tokenizer.tokenize(content)
-                token = [CLS] + token
+                token = self.tokenizer.tokenize(content)
+                token = [self.tokenizer.cls_token] + token
                 seq_len = len(token)
                 mask = []
-                token_ids = config.tokenizer.convert_tokens_to_ids(token)
+                token_ids = self.tokenizer.convert_tokens_to_ids(token)
 
                 if pad_size:
                     if len(token) < pad_size:
@@ -36,62 +41,19 @@ def build_dataset(config):
                         seq_len = pad_size
                 contents.append((token_ids, int(label), seq_len, mask))
         return contents
-    train = load_dataset(config.train_path, config.pad_size)
-    dev = load_dataset(config.dev_path, config.pad_size)
-    test = load_dataset(config.test_path, config.pad_size)
-
-    return train, dev, test
-
-
-class DatasetIterater(object):
-    def __init__(self, batches, batch_size, device):
-        self.batch_size = batch_size
-        self.batches = batches
-        self.n_batches = len(batches) // batch_size
-        self.residue = False  # 记录batch数量是否为整数
-        if len(batches) % self.n_batches != 0:
-            self.residue = True
-        self.index = 0
-        self.device = device
-
-    def _to_tensor(self, datas):
-        x = torch.LongTensor([_[0] for _ in datas]).to(self.device)
-        y = torch.LongTensor([_[1] for _ in datas]).to(self.device)
-
-        # pad前的长度(超过pad_size的设为pad_size)
-        seq_len = torch.LongTensor([_[2] for _ in datas]).to(self.device)
-        mask = torch.LongTensor([_[3] for _ in datas]).to(self.device)
-        return (x, seq_len, mask), y
-
-    def __next__(self):
-        if self.residue and self.index == self.n_batches:
-            batches = self.batches[self.index * self.batch_size: len(self.batches)]
-            self.index += 1
-            batches = self._to_tensor(batches)
-            return batches
-
-        elif self.index >= self.n_batches:
-            self.index = 0
-            raise StopIteration
-        else:
-            batches = self.batches[self.index * self.batch_size: (self.index + 1) * self.batch_size]
-            self.index += 1
-            batches = self._to_tensor(batches)
-            return batches
-
-    def __iter__(self):   #先定义循环气iter，再定义next，next调用to_tensor方法产生到device的batch
-        return self
 
     def __len__(self):
-        if self.residue:
-            return self.n_batches + 1
-        else:
-            return self.n_batches
+        return len(self.data)
 
+    def __getitem__(self, index):
+        token_ids, label, seq_len, mask = self.data[index]
+        return {
+            'input_ids': torch.LongTensor(token_ids),
+            'seq_len': torch.LongTensor([seq_len]),
+            'mask': torch.LongTensor(mask),
+            'label': torch.LongTensor([label])
+        }
 
-def build_iterator(dataset, config):
-    iter = DatasetIterater(dataset, config.batch_size, config.device)
-    return iter
 
 
 def get_time_dif(start_time):
