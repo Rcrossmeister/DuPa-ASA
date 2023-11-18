@@ -85,29 +85,6 @@ def train(config, model, train_iter, dev_iter, test_iter):
     test(config, model, test_iter)
 
 
-    # for i in range(1,150):
-    #     path = '/home/hzj/NLP1/SentimentAnalysis/Code/CTC/Yelp/model/model-' + str(i) +'00.ckpt'
-    #     # test
-    #     model.load_state_dict(torch.load(path))
-    #     model.eval()
-    #     start_time = time.time()
-    #     test_acc, test_loss, test_report, test_confusion = evaluate(config, model, test_iter, test=True)
-    #     msg = 'Test Loss: {0:>5.2},  Test Acc: {1:>6.2%}'
-    #     print(msg.format(test_loss, test_acc))
-    #     print("Precision, Recall and F1-Score...")
-    #     print(test_report)
-    #     print("Confusion Matrix...")
-    #     print(test_confusion)
-    #     time_dif = get_time_dif(start_time)
-    #     print("Time usage:", time_dif)
-
-
-# for i in range(1,16):
-#     path = '/home/hzj/NLP1/SentimentAnalysis/Code/CTC/IMDB/BLAT-' + str(i) +'00.ckpt'
-#     test(config, model, test_iter, path)
-
-
-# def test(config, model, test_iter,path):
 def test(config, model, test_iter):
     # test
     # model.load_state_dict(torch.load(path))

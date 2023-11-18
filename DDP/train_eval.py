@@ -11,7 +11,6 @@ from transformers.optimization import get_linear_schedule_with_warmup
 import torch.distributed
 
 
-
 # 权重初始化，默认xavier
 def init_network(model, method='xavier', exclude='embedding', seed=123):
     for name, w in model.named_parameters():
@@ -36,16 +35,15 @@ def train(config, model, train_iter, dev_iter, test_iter):
     model.train()
     param_optimizer = list(model.named_parameters())
     no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
-    optimizer_grouped_parameters = [
-        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
-        {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
-    # optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
+    optimizer_grouped_parameters = [{'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01}, {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
+    #optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
 
     # Initialize the AdamW optimizer
     optimizer = AdamW(optimizer_grouped_parameters, lr=config.learning_rate, correct_bias=False)
 
     # Setup the learning rate scheduler with warmup
     total_steps = len(train_iter) * config.num_epochs
+    #scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=0.5)
     scheduler = get_linear_schedule_with_warmup(optimizer,
                                                 num_warmup_steps=int(0.05 * total_steps),
                                                 num_training_steps=total_steps)
@@ -62,12 +60,19 @@ def train(config, model, train_iter, dev_iter, test_iter):
     for epoch in range(config.num_epochs):
         train_iter.sampler.set_epoch(epoch)
         print('Epoch [{}/{}]'.format(epoch + 1, config.num_epochs))
-        for i, (trains, labels) in enumerate(train_iter):
+        for i, batch in enumerate(train_iter):
+            token_ids, seq_len, masks, labels=batch
+            token_ids=token_ids.to(config.device)
+            seq_len=seq_len.to(config.device)
+            masks=masks.to(config.device)
+            labels=labels.to(config.device)
+            trains=(token_ids,seq_len,masks)
             outputs = model(trains)
             model.zero_grad()
             loss = F.cross_entropy(outputs, labels)
             loss.backward()
             optimizer.step()
+            # load模型要在构造DDP模型之前，且只需要在master上加载就行了。
             if total_batch % 100 == 0 and torch.distributed.get_rank() == 0:
                 # 每多少轮输出在训练集和验证集上的效果
                 true = labels.data.cpu()
@@ -118,7 +123,13 @@ def evaluate(config, model, data_iter, test=False):
     predict_all = np.array([], dtype=int)
     labels_all = np.array([], dtype=int)
     with torch.no_grad():
-        for texts, labels in data_iter:
+        for batch in data_iter:
+            token_ids, seq_len, masks, labels = batch
+            token_ids = token_ids.to(config.device)
+            seq_len = seq_len.to(config.device)
+            masks = masks.to(config.device)
+            labels = labels.to(config.device)
+            texts=(token_ids,seq_len,masks)
             outputs = model(texts)
             loss = F.cross_entropy(outputs, labels)
             loss_total += loss

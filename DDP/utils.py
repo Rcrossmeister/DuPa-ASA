@@ -9,11 +9,10 @@ PAD, CLS = '[PAD]', '[CLS]'  # padding符号, bert中综合信息符号
 
 
 class CustomDataset(Dataset):
-    def __init__(self, path, tokenizer, pad_size):
-        self.data = self.load_dataset(path, pad_size)
+    def __init__(self, path, tokenizer, pad_size,devie):
         self.tokenizer = tokenizer
-
-
+        self.data = self.load_dataset(path, pad_size)
+        self.device=devie
     def load_dataset(self, path, pad_size):
         contents = []
         with open(path, 'r', encoding='UTF-8') as f:
@@ -35,24 +34,20 @@ class CustomDataset(Dataset):
                     if len(token) < pad_size:
                         mask = [1] * len(token_ids) + [0] * (pad_size - len(token))
                         token_ids += ([0] * (pad_size - len(token)))
+
                     else:
                         mask = [1] * pad_size
                         token_ids = token_ids[:pad_size]
                         seq_len = pad_size
-                contents.append((token_ids, int(label), seq_len, mask))
+                content_1={'token_ids':token_ids,'seq_len':seq_len,'mask':mask,'label':int(label)}
+                contents.append(content_1)
         return contents
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, index):
-        token_ids, label, seq_len, mask = self.data[index]
-        return {
-            'input_ids': torch.LongTensor(token_ids),
-            'seq_len': torch.LongTensor([seq_len]),
-            'mask': torch.LongTensor(mask),
-            'label': torch.LongTensor([label])
-        }
+        return self.data[index]
 
 
 
