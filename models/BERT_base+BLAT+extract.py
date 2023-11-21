@@ -1,4 +1,5 @@
 import torch.nn as nn
+from torch.nn.utils.rnn import pad_sequence
 from transformers import BertConfig, BertModel,BertTokenizer, BertForSequenceClassification,BertForQuestionAnswering
 import torch
 import numpy as np
@@ -37,12 +38,15 @@ class Config(object):
         self.num_classes = len(self.class_list)                         # 类别数
         self.n_vocab = 0                                                # 词表大小，在运行时赋值
         self.num_epochs = 5                                             # epoch数
-        self.batch_size = 64                                          # mini-batch大小
+        self.batch_size = 16                                          # mini-batch大小
         self.pad_size = 256                                             # 每句话处理成的长度(短填长切)
         self.learning_rate = 1e-3
         self.embed = self.embedding_pretrained.size(1)\
             if self.embedding_pretrained is not None else 300           # 字向量维度, 若使用了预训练词向量，则维度统一
-        self.hidden_size = 256                                          # lstm隐藏层
+        self.hidden_size = 256  
+        '''
+        把hidden_size改成148
+        '''                                                               # lstm隐藏层
         self.num_layers = 2                                             # lstm层数
         self.num_attention_heads = 1                                    # 头个数
         self.initializer_range = 0.02                                   # 正态分布的方差
@@ -70,8 +74,11 @@ class Model(nn.Module):
                 "The hidden size (%d) is not a multiple of the number of attention "
                 "heads (%d)" %
                 (config.embed, config.num_attention_heads))
-
-
+            # 添加一个新的线性层用于句子得分
+            # 这个层将从每个句子的 [CLS] token 的 BERT 表示中计算一个得分
+        self.sent_score_layer = nn.Linear(768, 1).to(config.device)
+        self.bert_model = BertModel.from_pretrained("/home/yjy/DuPa-ASA/bert-base-uncased").to(torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'))
+        self.bert_tokenizer = BertTokenizer.from_pretrained("/home/yjy/DuPa-ASA/bert-base-uncased")
         """
         上路的参数
         """
@@ -106,50 +113,6 @@ class Model(nn.Module):
 
         self.apply(self.init_weights)
 
-    '''
-        新增添的东西
-        '''
-    #
-    # def bert_summarizer(self, text):
-    #     # 将文本分割成句子
-    #     sentences = text.split('. ')
-    #     sentences = [s for s in sentences if s]
-    #
-    #     # 为每个句子打分
-    #     scores = []
-    #     for sentence in sentences:
-    #         inputs = self.summarization_tokenizer(sentence, return_tensors="pt", truncation=True, padding=True,
-    #                                               max_length=512)
-    #         with torch.no_grad():
-    #             output = self.summarization_model(**inputs)
-    #         scores.append(output.logits[0][1].item())  # 假设正类(1)是"重要的"
-    #
-    #     # 选择得分最高的句子作为摘要
-    #     summary = sentences[scores.index(max(scores))]
-    #     return summary
-    #
-    # def split_into_sentences(self, input_ids):
-    #     # 获取句号的token_id
-    #     period_token_id = self.summarization_tokenizer.convert_tokens_to_ids('.')
-    #
-    #     sentences_ids = []
-    #     current_sentence = []
-    #     for token_id in input_ids[0]:  # 假设input_ids是一个batch，我们处理第一个
-    #         current_sentence.append(token_id)
-    #         if token_id == period_token_id:
-    #             # 结束当前句子
-    #             sentences_ids.append(torch.tensor(current_sentence))
-    #             current_sentence = []
-    #
-    #     # 处理最后一个句子（如果它不是空的）
-    #     if current_sentence:
-    #         sentences_ids.append(torch.tensor(current_sentence))
-    #
-    #     return sentences_ids
-
-    '''
-    新增添的东西
-    '''
     def transpose_for_scores(self, x):
         new_x_shape = x.size()[:-1] + (self.num_attention_heads,
                                        self.attention_head_size)
@@ -193,10 +156,48 @@ class Model(nn.Module):
         init_mask[x == 2] = 0
         return init_mask
     def extract_model(self, x, init_mask):
-        extract_model(x, init_mask).to(torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'))
+        extract_model(x, init_mask)
+
+    def bert_summarizer(self, input_ids, attention_mask):
+        batch_size, sequence_length = input_ids.size()
+
+        # 获取 BERT 输出
+        model_output = self.bert_model(input_ids, attention_mask=attention_mask)
+        token_embeddings = model_output.last_hidden_state  # (batch_size, sequence_length, hidden_size)
+
+        # 假设每个句子由 [SEP] 分隔，并且每个文档以 [CLS] 开始
+        sep_token_id = self.bert_tokenizer.sep_token_id
+        cls_token_id = self.bert_tokenizer.cls_token_id
+
+        summaries = []
+        for batch_idx in range(batch_size):
+            sentence_scores = []
+            sentence_start = 0
+
+            # 遍历每个 token，寻找句子分隔符
+            for token_idx in range(sequence_length):
+                if input_ids[batch_idx, token_idx] == sep_token_id or token_idx == sequence_length - 1:
+                    # 获取句子的 [CLS] 表示
+                    cls_representation = token_embeddings[batch_idx, sentence_start, :]
+
+                    # 计算句子的得分
+                    score = self.sent_score_layer(cls_representation).squeeze(-1)
+                    sentence_scores.append((score, sentence_start, token_idx))
+
+                    # 更新下一个句子的起始位置
+                    sentence_start = token_idx + 1
+
+            # 选择得分最高的句子
+            top_sentence = max(sentence_scores, key=lambda x: x[0])
+            _, start_idx, end_idx = top_sentence
+
+            # 构建摘要
+            summary_ids = input_ids[batch_idx, start_idx:end_idx + 1]
+            summaries.append(summary_ids)
+
+        return summaries
 
     def forward(self, x):
-        print(x)
         print(x[0])
 
         # x = input_ids (vocab index e.g. [205, 1, 200, 123, ..., <PAD>, <PAD>])
@@ -213,16 +214,15 @@ class Model(nn.Module):
         """
         extract 放在这个地方
         """
-        # x = input_ids (vocab index e.g. [205, 1, 200, 123, ..., <PAD>, <PAD>])
-        # init_mask = attention_mask (mask e.g. [1, 1, 1, 0, ..., 0])
-        # 使用BERT模型进行摘要
 
-        summarized_ids = self.extract_model(x[0].to(self.config.device), init_mask.to(self.config.device))
+        summaries = self.bert_summarizer(x[0].to(self.config.device), init_mask.to(self.config.device))
+        summaries_tensors = [torch.tensor(summary) for summary in summaries]
 
-        print(summarized_ids)
+        # 使用 pad_sequence 来填充摘要，使它们具有相同的长度
+        outputs = pad_sequence(summaries_tensors, batch_first=True, padding_value=0,maxlen=256)
 
         # emb: fine-tune bert 的地方
-        emb = self.embedding(summarized_ids).to(self.config.device)
+        emb = self.embedding(outputs).to(self.config.device)
         # emb = self.embedding(extract_outputs)
         """ 上路的计算 """
         attention_mask = init_mask.unsqueeze(1)
@@ -230,14 +230,19 @@ class Model(nn.Module):
         attention_mask = (1.0 - attention_mask) * -10000.0
 
         hidden_states, _ = self.lstm(emb)  # [batch_size, pad_len, hidden_size*2]
+        print("Hidden states shape:", hidden_states.shape)
         hidden_states = nn.Tanh()(hidden_states)
 
         # batch_size, seq_len, num_head * head_dim, batch_size, seq_len
         batch_size, seq_len, _ = hidden_states.shape
+        print("Batch size:", batch_size, "Seq len:", seq_len)  # 打印 batch_size 和 seq_le
         mixed_query_layer = self.query(hidden_states)
+        print("Mixed query layer shape:", mixed_query_layer.shape)
         mixed_key_layer = self.key(hidden_states)
+        print("Mixed key layer shape:", mixed_key_layer.shape)
         # batch_size, num_head, seq_len
         query_for_score = self.query_att(mixed_query_layer).transpose(1, 2) / self.attention_head_size ** 0.5
+        print("Query for score shape:", query_for_score.shape)
         # add attention mask 将填0的部分变成负无穷
         query_for_score += attention_mask
 
