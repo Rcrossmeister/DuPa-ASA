@@ -160,6 +160,7 @@ class Model(nn.Module):
 
     def bert_summarizer(self, input_ids, attention_mask):
         batch_size, sequence_length = input_ids.size()
+        max_len = 256  # 设置您想要的最大摘要长度
 
         # 获取 BERT 输出
         model_output = self.bert_model(input_ids, attention_mask=attention_mask)
@@ -191,8 +192,8 @@ class Model(nn.Module):
             top_sentence = max(sentence_scores, key=lambda x: x[0])
             _, start_idx, end_idx = top_sentence
 
-            # 构建摘要
-            summary_ids = input_ids[batch_idx, start_idx:end_idx + 1]
+            # 构建摘要，并确保长度不超过 max_len
+            summary_ids = input_ids[batch_idx, start_idx:end_idx + 1][:max_len]
             summaries.append(summary_ids)
 
         return summaries
@@ -219,7 +220,7 @@ class Model(nn.Module):
         summaries_tensors = [torch.tensor(summary) for summary in summaries]
 
         # 使用 pad_sequence 来填充摘要，使它们具有相同的长度
-        outputs = pad_sequence(summaries_tensors, batch_first=True, padding_value=0,maxlen=256)
+        outputs = pad_sequence(summaries_tensors, batch_first=True, padding_value=0)
 
         # emb: fine-tune bert 的地方
         emb = self.embedding(outputs).to(self.config.device)
