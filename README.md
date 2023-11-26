@@ -79,6 +79,12 @@ seed:88, bz=64, 2080ti, 多卡
 | **bert-large**  |      |        |        |        |         |
 | **xlnet-large** |      |        |        |        |         |
 
+seed:88, bz=64, 2080ti, 多卡
+
+| Model                  | IMDB | Yelp-2 | Yelp-5 | Amazon | Average |
+| -----------------------| ---- | ------ | ------ | ------ | ------- |
+| **bert-base+extract**  |      |        |        |        |         |
+
 ## Citation
 
 Please cite our paper if you use it in your work:
