@@ -30,7 +30,7 @@ def init_network(model, method='xavier', exclude='embedding', seed=123):
                 pass
 
 
-def train(config, model, train_iter, dev_iter, test_iter):
+def train(config, model, train_iter, dev_iter, test_iter,run_device):
     start_time = time.time()
     model.train()
     param_optimizer = list(model.named_parameters())
@@ -62,10 +62,10 @@ def train(config, model, train_iter, dev_iter, test_iter):
         print('Epoch [{}/{}]'.format(epoch + 1, config.num_epochs))
         for i, batch in enumerate(train_iter):
             token_ids, seq_len, masks, labels=batch
-            token_ids=token_ids.to(config.device)
-            seq_len=seq_len.to(config.device)
-            masks=masks.to(config.device)
-            labels=labels.to(config.device)
+            token_ids=token_ids.to(run_device)
+            seq_len=seq_len.to(run_device)
+            masks=masks.to(run_device)
+            labels=labels.to(run_device)
             trains=(token_ids,seq_len,masks)
             outputs = model(trains)
             model.zero_grad()
@@ -74,11 +74,13 @@ def train(config, model, train_iter, dev_iter, test_iter):
             optimizer.step()
             # load模型要在构造DDP模型之前，且只需要在master上加载就行了。
             if total_batch % 100 == 0 and torch.distributed.get_rank() == 0:
+                current_device = torch.cuda.current_device()
+                print(f"GPU device {current_device} is being used by rank=0.")
                 # 每多少轮输出在训练集和验证集上的效果
                 true = labels.data.cpu()
                 predic = torch.max(outputs.data, 1)[1].cpu()
                 train_acc = metrics.accuracy_score(true, predic)
-                dev_acc, dev_loss = evaluate(config, model, dev_iter)
+                dev_acc, dev_loss = evaluate(config, model, dev_iter,run_device)
                 if dev_loss < dev_best_loss:
                     dev_best_loss = dev_loss
                     torch.save(model.module.state_dict(), config.save_path)
@@ -98,15 +100,15 @@ def train(config, model, train_iter, dev_iter, test_iter):
                 break
         if flag:
             break
-    test(config, model, test_iter)
+    test(config, model, test_iter,run_device)
 
 
-def test(config, model, test_iter):
+def test(config, model, test_iter,run_device):
     # test
     model.load_state_dict(torch.load(config.save_path))
     model.eval()
     start_time = time.time()
-    test_acc, test_loss, test_report, test_confusion = evaluate(config, model, test_iter, test=True)
+    test_acc, test_loss, test_report, test_confusion = evaluate(config, model, test_iter, run_device,test=True)
     msg = 'Test Loss: {0:>5.2},  Test Acc: {1:>6.2%}'
     print(msg.format(test_loss, test_acc))
     print("Precision, Recall and F1-Score...")
@@ -117,7 +119,7 @@ def test(config, model, test_iter):
     print("Time usage:", time_dif)
 
 
-def evaluate(config, model, data_iter, test=False):
+def evaluate(config, model, data_iter, run_device,test=False):
     model.eval()
     loss_total = 0
     predict_all = np.array([], dtype=int)
@@ -125,10 +127,10 @@ def evaluate(config, model, data_iter, test=False):
     with torch.no_grad():
         for batch in data_iter:
             token_ids, seq_len, masks, labels = batch
-            token_ids = token_ids.to(config.device)
-            seq_len = seq_len.to(config.device)
-            masks = masks.to(config.device)
-            labels = labels.to(config.device)
+            token_ids = token_ids.to(torch.device('cuda:0'))
+            seq_len = seq_len.to(torch.device('cuda:0'))
+            masks = masks.to(torch.device('cuda:0'))
+            labels = labels.to(torch.device('cuda:0'))
             texts=(token_ids,seq_len,masks)
             outputs = model(texts)
             loss = F.cross_entropy(outputs, labels)

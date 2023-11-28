@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn
 from transformers import BertModel, BertTokenizer
-from run import local_rank
+
 class Config(object):
 
     """配置参数"""
@@ -14,14 +14,14 @@ class Config(object):
         self.class_list = [x.strip() for x in open(
             dataset + '/data/class.txt').readlines()]                                # 类别名单
         self.save_path = dataset + '/saved_dict/' + self.model_name + '.ckpt'        # 模型训练结果
-        self.device = torch.device('cuda:{}'.format(int(local_rank)) if torch.cuda.is_available() else 'cpu')   # 设备
+        ##取消了self_device，因为后续都直接使用run中的run_device
 
         self.require_improvement = 1000                                 # 若超过1000batch效果还没提升，则提前结束训练
         self.num_classes = len(self.class_list)                         # 类别数
         self.num_epochs = 5                                             # epoch数
-        self.batch_size = 16                                           # mini-batch大小
+        self.batch_size = 32                                           # mini-batch大小
         self.pad_size = 256                                              # 每句话处理成的长度(短填长切)
-        self.learning_rate = 1e-3                                       # 学习率
+        self.learning_rate = (1e-3)*3.5                                       # 学习率
         self.bert_path = '/home/sy/code/DUPA-ASA/bert-base-uncased'
         self.tokenizer = BertTokenizer.from_pretrained(self.bert_path)
         self.hidden_size = 768

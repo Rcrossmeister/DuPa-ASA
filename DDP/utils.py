@@ -9,10 +9,10 @@ PAD, CLS = '[PAD]', '[CLS]'  # padding符号, bert中综合信息符号
 
 
 class CustomDataset(Dataset):
-    def __init__(self, path, tokenizer, pad_size,devie):
+    def __init__(self, path, tokenizer, pad_size):
         self.tokenizer = tokenizer
         self.data = self.load_dataset(path, pad_size)
-        self.device=devie
+
     def load_dataset(self, path, pad_size):
         contents = []
         with open(path, 'r', encoding='UTF-8') as f:

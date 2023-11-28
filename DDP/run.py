@@ -21,6 +21,7 @@ args = parser.parse_args()
 
 
 local_rank = int(os.environ['LOCAL_RANK'])
+run_device = torch.device('cuda:{}'.format(int(local_rank)) if torch.cuda.is_available() else 'cpu')
 if __name__ == '__main__':
 
 
@@ -46,11 +47,11 @@ if __name__ == '__main__':
     start_time = time.time()
     print("Loading data...")
 
-    train_data = CustomDataset(config.train_path, config.tokenizer, config.pad_size,config.device)
-    dev_data=CustomDataset(config.dev_path, config.tokenizer, config.pad_size,config.device)
-    test_data=CustomDataset(config.test_path, config.tokenizer, config.pad_size,config.device)
+    train_data = CustomDataset(config.train_path, config.tokenizer, config.pad_size)
+    dev_data=CustomDataset(config.dev_path, config.tokenizer, config.pad_size)
+    test_data=CustomDataset(config.test_path, config.tokenizer, config.pad_size)
 
-    print(config.device)
+    print(run_device)
     train_sampler=DistributedSampler(train_data)
 
     def Custom_collate_fn(batch):
@@ -68,9 +69,9 @@ if __name__ == '__main__':
     print("Time usage:", time_dif)
     # train
     if model_name=="bert":
-        model = bert.Model(config).to(config.device)
+        model = bert.Model(config).to(run_device)
     else:
-        model = xlnet.Model(config).to(config.device)
+        model = xlnet.Model(config).to(run_device)
 
     model = DDP(model, broadcast_buffers=False, find_unused_parameters=True)
 
@@ -79,5 +80,5 @@ if __name__ == '__main__':
 
     print(model.parameters)
     print(config.__dict__)
-    train(config, model, train_iter, dev_iter, test_iter)
+    train(config, model, train_iter, dev_iter, test_iter,run_device)
     torch.cuda.empty_cache()
