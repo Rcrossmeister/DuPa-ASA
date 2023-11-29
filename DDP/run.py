@@ -3,7 +3,7 @@ import os
 import time
 import torch
 import numpy as np
-from train_eval import train, init_network
+from train_eval_test import train, init_network
 import argparse
 from utils import CustomDataset, get_time_dif
 from torch.utils.data.distributed import DistributedSampler
