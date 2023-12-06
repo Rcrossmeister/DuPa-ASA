@@ -72,6 +72,13 @@ seed:3407,bz=128, 2080ti，单卡
 | **BLAT(bert-large)**  | 0.8914     | 0.9759     | 0.7915     | 0.9226     | 0.8954     |
 | **BLAT(xlnet-large)** | 0.8860     | 0.9761     | 0.7872     | 0.9209     | 0.8926     |
 
+Ablation Study: seed=88, bz=128, 单卡(M40)
+
+| Model                     | IMDB       | Yelp-2 | Yelp-5 | Amazon | Average |
+| ------------------------- | ---------- | ------ | ------ | ------ | ------- |
+| **Fastformer(bert_base)** | **0.8734** | **0.** | **0.** | **0.** | **0.**  |
+| **TextCNN(bert_base)**    | **0.**     | **0.** | **0.** | **0.** | **0.**  |
+
 seed:88, bz=64, 2080ti, 多卡
 
 | Model           | IMDB | Yelp-2 | Yelp-5 | Amazon | Average |
@@ -84,6 +91,8 @@ seed:88, bz=64, 2080ti, 多卡
 | Model                  | IMDB | Yelp-2 | Yelp-5 | Amazon | Average |
 | -----------------------| ---- | ------ | ------ | ------ | ------- |
 | **bert-base+extract**  |      |        |        |        |         |
+
+
 
 ## Citation
 
