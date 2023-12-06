@@ -33,13 +33,12 @@ if __name__ == '__main__':
         from utils import build_dataset, build_iterator, get_time_dif
 
     x = import_module('models.' + model_name)
-    if model_name == 'BLAT-inter':
-        config = x.Config(dataset, raw_embedding, extract_embedding)
-    else:
-        config = x.Config(dataset)
-    np.random.seed(3407)
-    torch.manual_seed(3407)
-    torch.cuda.manual_seed_all(3407)
+
+    config = x.Config(dataset)
+
+    np.random.seed(88)
+    torch.manual_seed(88)
+    torch.cuda.manual_seed_all(88)
     torch.backends.cudnn.deterministic = True  # 保证每次结果一样
 
     start_time = time.time()

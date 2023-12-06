@@ -38,7 +38,7 @@ class Config(object):
         self.num_classes = len(self.class_list)                         # 类别数
         self.n_vocab = 0                                                # 词表大小，在运行时赋值
         self.num_epochs = 5                                             # epoch数
-        self.batch_size = 16                                          # mini-batch大小
+        self.batch_size = 64                                          # mini-batch大小
         self.pad_size = 256                                             # 每句话处理成的长度(短填长切)
         self.learning_rate = 1e-3
         self.embed = self.embedding_pretrained.size(1)\
@@ -194,18 +194,24 @@ class Model(nn.Module):
 
             # 构建摘要，并确保长度不超过 max_len
             summary_ids = input_ids[batch_idx, start_idx:end_idx + 1][:max_len]
+
+            padding_length = max_len - summary_ids.size(0)
+            if padding_length > 0:
+                padding = torch.zeros(padding_length, dtype=summary_ids.dtype).to(self.config.device)
+                summary_ids = torch.cat([summary_ids, padding], dim=0)
+
             summaries.append(summary_ids)
 
         return summaries
 
     def forward(self, x):
-        print(x[0])
+        #print(x[0])
 
         # x = input_ids (vocab index e.g. [205, 1, 200, 123, ..., <PAD>, <PAD>])
 
         # init_mask = attention_mask (mask e.g. [1, 1, 1, 0, ..., 0])
         init_mask = self.initialize_mask(x[0]).to(self.config.device)
-        print(init_mask)
+        #print(init_mask)
         # 最理想的就是通过SA的bp能把extract也训好
         # 不行的话就通过现成的库给一个抽取式摘要
 
@@ -231,19 +237,19 @@ class Model(nn.Module):
         attention_mask = (1.0 - attention_mask) * -10000.0
 
         hidden_states, _ = self.lstm(emb)  # [batch_size, pad_len, hidden_size*2]
-        print("Hidden states shape:", hidden_states.shape)
+        #print("Hidden states shape:", hidden_states.shape)
         hidden_states = nn.Tanh()(hidden_states)
 
         # batch_size, seq_len, num_head * head_dim, batch_size, seq_len
         batch_size, seq_len, _ = hidden_states.shape
-        print("Batch size:", batch_size, "Seq len:", seq_len)  # 打印 batch_size 和 seq_le
+        #print("Batch size:", batch_size, "Seq len:", seq_len)  # 打印 batch_size 和 seq_le
         mixed_query_layer = self.query(hidden_states)
-        print("Mixed query layer shape:", mixed_query_layer.shape)
+        #print("Mixed query layer shape:", mixed_query_layer.shape)
         mixed_key_layer = self.key(hidden_states)
-        print("Mixed key layer shape:", mixed_key_layer.shape)
+        #print("Mixed key layer shape:", mixed_key_layer.shape)
         # batch_size, num_head, seq_len
         query_for_score = self.query_att(mixed_query_layer).transpose(1, 2) / self.attention_head_size ** 0.5
-        print("Query for score shape:", query_for_score.shape)
+        #print("Query for score shape:", query_for_score.shape)
         # add attention mask 将填0的部分变成负无穷
         query_for_score += attention_mask
 
@@ -281,7 +287,7 @@ class Model(nn.Module):
 
         upper_output = self.weight_pooling(weighted_value, init_mask)
         upper_output = self.LayerNorm(upper_output)
-
+        
         """
         下路的计算
         """

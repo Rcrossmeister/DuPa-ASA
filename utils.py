@@ -9,7 +9,7 @@ PAD, CLS = '[PAD]', '[CLS]'  # padding符号, bert中综合信息符号
 
 
 def build_dataset(config):
-    tokenizer = XLNetTokenizer.from_pretrained("/home/sy/code/DUPA-ASA/xlnet-large-cased")
+    tokenizer = BertTokenizer.from_pretrained("/home/sy/code/DUPA-ASA/bert-base-uncased")
     def load_dataset(path, pad_size):
         contents = []
         with open(path, 'r', encoding='UTF-8') as f:
