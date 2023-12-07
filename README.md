@@ -33,7 +33,7 @@ python run.py --model=BLAT --embedding=random --word True
 
 ## Results
 
-Without transfer learning(seed88):
+Without transfer learning，seed:88 (M40单卡):
 
 | Model       | IMDB       | Yelp-2     | Yelp-5     | Amazon     | Average |
 | ----------- | ---------- | ---------- | ---------- | ---------- | ------- |
@@ -47,7 +47,7 @@ Without transfer learning(seed88):
 | Fastformer  | 0.8718     | 0.9664     | 0.7739     | 0.8813     | 0.8734  |
 | **BLAT**    | **0.8630** | **0.9731** | **0.7861** | **0.9119** | **0.8835** |
 
-With transfer learning(seed 88):
+With transfer learning(seed 88)(M40单卡):
 
 | Model                 | IMDB       | Yelp-2     | Yelp-5     | Amazon     | Average    |
 | --------------------  | ---------- | ---------- | ---------- | ---------- | ---------- |
@@ -68,10 +68,10 @@ seed:3407,bz=128, 2080ti，单卡
 
 **Ablation Study:** seed=88, bz=128, 单卡(M40)
 
-| Model                     | IMDB       | Yelp-2 | Yelp-5 | Amazon | Average |
-| ------------------------- | ---------- | ------ | ------ | ------ | ------- |
-| **Fastformer(bert_base)** | **0.8734** | **0.** | **0.** | **0.** | **0.**  |
-| **TextCNN(bert_base)**    | **0.9054** | **0.** | **0.** | **0.** | **0.**  |
+| Model                     | IMDB       | Yelp-2     | Yelp-5     | Amazon     | Average    |
+| ------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- |
+| **Fastformer(bert_base)** | **0.8734** | **0.9661** | **0.7732** | **0.8834** | **0.8740** |
+| **TextCNN(bert_base)**    | **0.9054** | **0.9758** | **0.7930** | **0.9213** | **0.8989** |
 
 seed:88, bz=64, 2080ti, 多卡
 
